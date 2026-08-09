@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 async function testScrape() {
-  const url = 'https://www.amazon.com/dp/B08GLYFDRB';
+  const url = 'https://www.amazon.com/dp/B07R7Q8Z9F';
   console.log('Fetching:', url);
   try {
     const response = await axios.get(url, {
