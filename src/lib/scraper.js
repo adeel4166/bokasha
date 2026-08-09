@@ -58,15 +58,25 @@ export async function scrapeAmazonProduct(inputUrl, region = 'US') {
   const asin = extractAsin(url) || 'UNKNOWN';
 
   try {
-    const response = await axios.get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Device-Memory': '8',
-      },
-      timeout: 15000,
-    });
+    let response;
+    const scraperApiKey = process.env.SCRAPER_API_KEY;
+
+    if (scraperApiKey) {
+      console.log('Using ScraperAPI to bypass Amazon block:', url);
+      const scraperUrl = `http://api.scraperapi.com?api_key=${scraperApiKey}&url=${encodeURIComponent(url)}`;
+      response = await axios.get(scraperUrl, { timeout: 30000 });
+    } else {
+      console.log('Using direct request (fallback):', url);
+      response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Device-Memory': '8',
+        },
+        timeout: 15000,
+      });
+    }
 
     const $ = cheerio.load(response.data);
 
