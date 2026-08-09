@@ -71,12 +71,12 @@ export default async function PostDetailPage({ params }) {
       
       {/* Premium Header */}
       <nav className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0c0f1d]/75 backdrop-blur-md sticky top-0 z-20 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center w-full">
-          <Link href="/" className="text-xl font-black text-slate-900 dark:text-white tracking-widest hover:opacity-90 transition">
+        <div className="max-w-6xl mx-auto flex justify-between items-center w-full gap-2 sm:gap-4">
+          <Link href="/" className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-widest hover:opacity-90 transition truncate">
             BOKASHA
           </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 px-3.5 py-1.5 rounded-full">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            <Link href="/" className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full">
               <span>&larr;</span> Back
             </Link>
             <ThemeToggle />

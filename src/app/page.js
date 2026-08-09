@@ -157,7 +157,7 @@ export default async function BlogHome({ searchParams }) {
           
           <div className="flex items-center gap-4 w-full sm:w-auto">
             {/* Search Input */}
-            <form action="/" method="GET" className="relative w-full sm:w-80">
+            <form action="/" method="GET" className="relative flex-1 sm:w-80">
               <input
                 type="text"
                 name="q"
