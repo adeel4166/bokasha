@@ -43,7 +43,7 @@ export default function HeroCarousel({ posts }) {
 
   return (
     <div 
-      className="relative w-full overflow-hidden bg-white dark:bg-[#0c0f1d]/40 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-xl transition-all duration-300 group min-h-[350px] flex flex-col justify-stretch"
+      className="relative w-full overflow-hidden bg-white dark:bg-[#0c0f1d]/40 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 group h-[650px] sm:h-[500px] md:h-[400px] flex flex-col justify-stretch"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -61,7 +61,7 @@ export default function HeroCarousel({ posts }) {
               }`}
             >
               {/* Product Image Panel: Styled with modern slate background and centered white card frame */}
-              <div className="md:w-1/2 bg-slate-50 dark:bg-[#080c16] flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-slate-150 dark:border-slate-800 flex-shrink-0 relative min-h-[280px] md:min-h-auto">
+              <div className="h-[45%] md:h-full md:w-1/2 bg-slate-50 dark:bg-[#080c16] flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-slate-150 dark:border-slate-800 flex-shrink-0 relative">
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 w-[85%] h-[85%] max-h-[240px] flex items-center justify-center group-hover:scale-102 transition duration-500">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
@@ -83,7 +83,7 @@ export default function HeroCarousel({ posts }) {
               </div>
               
               {/* Product Details Panel */}
-              <div className="md:w-1/2 p-8 flex flex-col justify-between space-y-4 bg-white dark:bg-[#0c0f1d]/20">
+              <div className="h-[55%] md:h-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between space-y-3 md:space-y-4 bg-white dark:bg-[#0c0f1d]/20">
                 <div className="space-y-3">
                   <div className="flex gap-2 items-center text-xs text-slate-500 font-mono">
                     <span className="text-amber-500 font-extrabold uppercase tracking-wider">{post.category}</span>

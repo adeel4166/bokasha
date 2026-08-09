@@ -150,22 +150,22 @@ export default async function BlogHome({ searchParams }) {
 
       {/* Navigation Header */}
       <nav className="border-b border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-[#0c0f1d]/75 backdrop-blur-md sticky top-0 z-20 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 w-full">
-          <Link href="/" className="text-xl font-black text-slate-900 dark:text-white tracking-widest hover:opacity-90 transition">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 w-full">
+          <Link href="/" className="text-2xl font-black text-slate-900 dark:text-white tracking-widest hover:opacity-90 transition">
             BOKASHA
           </Link>
           
-          <div className="flex items-center gap-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
             {/* Search Input */}
-            <form action="/" method="GET" className="relative flex-1 sm:w-80">
+            <form action="/" method="GET" className="relative w-full sm:w-80">
               <input
                 type="text"
                 name="q"
                 defaultValue={searchQuery}
                 placeholder="Search products..."
-                className="w-full bg-slate-100 dark:bg-[#070a13]/85 border border-slate-300 dark:border-slate-800 rounded-full px-5 py-2.5 pl-11 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition duration-200"
+                className="w-full bg-slate-100 dark:bg-[#070a13]/85 border border-slate-300 dark:border-slate-800 rounded-full px-5 py-2.5 pl-11 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition duration-200 shadow-inner"
               />
-              <svg className="w-4 h-4 text-slate-500 absolute left-4 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-slate-500 absolute left-4 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </form>
@@ -226,23 +226,24 @@ export default async function BlogHome({ searchParams }) {
         )}
 
         {/* 2. GREEN BRAND BANNER (Optimized design with amber search accent) */}
-        <section className="bg-gradient-to-r from-emerald-600 via-emerald-650 to-emerald-700 dark:from-emerald-800/80 dark:to-teal-900/60 rounded-3xl p-10 shadow-xl text-center space-y-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
-          <h3 className="text-lg md:text-2xl font-black text-white tracking-wide">
+        <section className="bg-gradient-to-r from-emerald-600 via-emerald-650 to-emerald-700 dark:from-emerald-800/80 dark:to-teal-900/60 rounded-3xl p-8 md:p-12 shadow-xl text-center space-y-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none transition-transform duration-1000 group-hover:scale-110"></div>
+          <div className="absolute bottom-0 left-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <h3 className="text-2xl md:text-4xl font-black text-white tracking-tight leading-tight max-w-2xl mx-auto drop-shadow-sm">
             Check our reviews before you buy anything. Ever.
           </h3>
-          <div className="relative max-w-lg mx-auto">
-            <form action="/" method="GET" className="flex shadow-md rounded-full bg-white dark:bg-[#070a13] p-1.5 border border-slate-200/50 dark:border-slate-800">
+          <div className="relative max-w-xl mx-auto pt-2">
+            <form action="/" method="GET" className="flex flex-col sm:flex-row shadow-lg sm:rounded-full rounded-2xl bg-white dark:bg-[#070a13] p-2 border border-emerald-500/30 dark:border-slate-800 gap-2 sm:gap-0">
               <input 
                 type="text" 
                 name="q"
                 defaultValue={searchQuery}
                 placeholder="Search products by title, region, or category..." 
-                className="flex-1 bg-transparent text-slate-900 dark:text-slate-100 border-none px-4 py-2 text-xs focus:outline-none"
+                className="flex-1 bg-transparent text-slate-900 dark:text-slate-100 border-none px-5 py-3 text-sm md:text-base focus:outline-none placeholder-slate-400 w-full rounded-xl sm:rounded-full"
               />
               <button 
                 type="submit"
-                className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-6 py-2.5 rounded-full transition shadow-md"
+                className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs md:text-sm uppercase px-8 py-3.5 rounded-xl sm:rounded-full transition shadow-md hover:shadow-lg flex items-center justify-center gap-2"
               >
                 Search
               </button>
