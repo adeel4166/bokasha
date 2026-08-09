@@ -9,6 +9,9 @@ async function testCheerio() {
   console.log('Fetching via ScraperAPI:', url);
   try {
     const response = await axios.get(scraperUrl);
+    const fs = require('fs');
+    fs.writeFileSync('C:/Users/Umair Tahir/Desktop/bokasha/scratch/response.html', response.data);
+    console.log('Saved HTML response to response.html');
     const $ = cheerio.load(response.data);
     
     const title = $('#productTitle').text().trim() || 
