@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 
 async function testCheerio() {
   const apiKey = '01d75a3b46c83232985317b9224eca6a';
-  const url = 'https://www.amazon.com/dp/B0CF5MT56V';
+  const url = 'https://www.amazon.com/dp/B0BYJ5ZTC3';
   const scraperUrl = `http://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(url)}`;
   
   console.log('Fetching via ScraperAPI:', url);
