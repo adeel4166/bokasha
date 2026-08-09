@@ -81,8 +81,18 @@ export async function generateProductReview({ title, bulletPoints, specification
       throw new Error('Received empty response from Gemini API.');
     }
 
+    // Helper to extract JSON block from text to bypass markdown wrappers or trailing characters
+    const extractJson = (text) => {
+      const start = text.indexOf('{');
+      const end = text.lastIndexOf('}');
+      if (start !== -1 && end !== -1 && end > start) {
+        return text.substring(start, end + 1);
+      }
+      return text;
+    };
+
     // Parse the JSON structure
-    const parsedData = JSON.parse(textContent.trim());
+    const parsedData = JSON.parse(extractJson(textContent.trim()));
     
     return {
       title: parsedData.title || title,
