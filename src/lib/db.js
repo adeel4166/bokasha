@@ -6,7 +6,7 @@ export async function getDbPool() {
   if (!pool) {
     pool = mysql.createPool({
       host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'root',
+      user: process.env.DB_USER || 'bokasha_user',
       password: process.env.DB_PASSWORD || 'Bokasha2024',
       database: process.env.DB_NAME || 'bokasha',
       port: parseInt(process.env.DB_PORT || '3306'),
