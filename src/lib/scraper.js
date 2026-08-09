@@ -118,21 +118,33 @@ export async function scrapeAmazonProduct(inputUrl, region = 'US') {
         if (dynamicImageJson) {
           try {
             const parsed = JSON.parse(dynamicImageJson);
-            imageUrl = Object.keys(parsed)[0]; // Selects highest resolution image
-            if (imageUrl) break;
+            const keys = Object.keys(parsed);
+            if (keys.length > 0) {
+              const possibleUrl = keys[0];
+              if (possibleUrl && !possibleUrl.includes('transparent-pixel') && !possibleUrl.includes('spacer.gif')) {
+                imageUrl = possibleUrl;
+                break;
+              }
+            }
           } catch (e) {
-            // fallback to src
+            // fallback
           }
         }
-        imageUrl = imgEl.attr('src') || imgEl.attr('data-old-hires');
-        if (imageUrl) break;
+        const candidateUrl = imgEl.attr('data-old-hires') || imgEl.attr('data-src') || imgEl.attr('src');
+        if (candidateUrl && !candidateUrl.includes('transparent-pixel') && !candidateUrl.includes('spacer.gif')) {
+          imageUrl = candidateUrl;
+          break;
+        }
       }
     }
     
     if (!imageUrl) {
-      imageUrl = $('meta[property="og:image"]').attr('content') || 
-                 $('meta[name="twitter:image"]').attr('content') || 
-                 '';
+      const ogImage = $('meta[property="og:image"]').attr('content') || 
+                      $('meta[name="twitter:image"]').attr('content') || 
+                      '';
+      if (ogImage && !ogImage.includes('transparent-pixel') && !ogImage.includes('spacer.gif')) {
+        imageUrl = ogImage;
+      }
     }
 
     // 4. Extract Product Specs / Details
