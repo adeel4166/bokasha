@@ -7,8 +7,8 @@ export async function getDbPool() {
     pool = mysql.createPool({
       host: process.env.DB_HOST || 'localhost',
       user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'reviews_era',
+      password: process.env.DB_PASSWORD || 'Bokasha2024',
+      database: process.env.DB_NAME || 'bokasha',
       port: parseInt(process.env.DB_PORT || '3306'),
       waitForConnections: true,
       connectionLimit: 10,
