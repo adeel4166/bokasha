@@ -20,17 +20,16 @@ export function getAmazonUrl(input, region = 'US') {
   
   const domain = domains[region.toUpperCase()] || 'amazon.com';
   
-  // Regular expression to match ASIN (10 alphanumeric characters)
-  const asinMatch = cleanInput.match(/\b([A-Z0-9]{10})\b/i);
-  
-  if (asinMatch) {
-    return `https://www.${domain}/dp/${asinMatch[1]}`;
-  }
-  
-  // If it's a URL already, try to extract ASIN and reconstruct to prevent tracking/ref parameter issues
+  // 1. Prioritize URL path match (extremely safe: requires /dp/ or /gp/product/)
   const urlAsinMatch = cleanInput.match(/\/dp\/([A-Z0-9]{10})/i) || cleanInput.match(/\/gp\/product\/([A-Z0-9]{10})/i);
   if (urlAsinMatch) {
-    return `https://www.${domain}/dp/${urlAsinMatch[1]}`;
+    return `https://www.${domain}/dp/${urlAsinMatch[1].toUpperCase()}`;
+  }
+  
+  // 2. Fallback to raw ASIN/ISBN pattern match (starts with B or 10-digit ISBN)
+  const asinMatch = cleanInput.match(/\b(B[A-Z0-9]{9})\b/i) || cleanInput.match(/\b(\d{9}[0-9X])\b/i);
+  if (asinMatch) {
+    return `https://www.${domain}/dp/${asinMatch[1].toUpperCase()}`;
   }
   
   // Fallback to original input if we can't extract ASIN
@@ -41,11 +40,15 @@ export function getAmazonUrl(input, region = 'US') {
  * Extracts ASIN from any Amazon URL or raw string.
  */
 export function extractAsin(input) {
-  const asinMatch = input.trim().match(/\b([A-Z0-9]{10})\b/i);
-  if (asinMatch) return asinMatch[1].toUpperCase();
-  
-  const urlAsinMatch = input.trim().match(/\/dp\/([A-Z0-9]{10})/i) || input.trim().match(/\/gp\/product\/([A-Z0-9]{10})/i);
+  const cleanInput = input.trim();
+
+  // 1. Prioritize URL path match (extremely safe: requires /dp/ or /gp/product/)
+  const urlAsinMatch = cleanInput.match(/\/dp\/([A-Z0-9]{10})/i) || cleanInput.match(/\/gp\/product\/([A-Z0-9]{10})/i);
   if (urlAsinMatch) return urlAsinMatch[1].toUpperCase();
+
+  // 2. Fallback to raw ASIN/ISBN pattern match (starts with B or 10-digit ISBN)
+  const asinMatch = cleanInput.match(/\b(B[A-Z0-9]{9})\b/i) || cleanInput.match(/\b(\d{9}[0-9X])\b/i);
+  if (asinMatch) return asinMatch[1].toUpperCase();
   
   return null;
 }
