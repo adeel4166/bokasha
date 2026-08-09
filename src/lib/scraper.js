@@ -95,25 +95,41 @@ export async function scrapeAmazonProduct(inputUrl, region = 'US') {
       }
     });
 
-    // 3. Extract Main Image
+    // 3. Extract Main Image (Robust Multi-Selector Approach)
     let imageUrl = '';
-    const imgEl = $('#landingImage');
-    if (imgEl.length > 0) {
-      const dynamicImageJson = imgEl.attr('data-a-dynamic-image');
-      if (dynamicImageJson) {
-        try {
-          const parsed = JSON.parse(dynamicImageJson);
-          imageUrl = Object.keys(parsed)[0]; // Selects highest resolution image
-        } catch (e) {
-          imageUrl = imgEl.attr('src');
+    const imgSelectors = [
+      '#landingImage',
+      '#imgBlkFront',
+      '#main-image',
+      '#imgTagWrapperId img',
+      '#imageBlock img',
+      '#landingImageWrapper img',
+      '#ebooksImgBlkFront',
+      '.a-dynamic-image'
+    ];
+    
+    for (const selector of imgSelectors) {
+      const imgEl = $(selector);
+      if (imgEl.length > 0) {
+        const dynamicImageJson = imgEl.attr('data-a-dynamic-image');
+        if (dynamicImageJson) {
+          try {
+            const parsed = JSON.parse(dynamicImageJson);
+            imageUrl = Object.keys(parsed)[0]; // Selects highest resolution image
+            if (imageUrl) break;
+          } catch (e) {
+            // fallback to src
+          }
         }
-      } else {
-        imageUrl = imgEl.attr('src');
+        imageUrl = imgEl.attr('src') || imgEl.attr('data-old-hires');
+        if (imageUrl) break;
       }
     }
     
     if (!imageUrl) {
-      imageUrl = $('#imgBlkFront').attr('src') || $('meta[property="og:image"]').attr('content') || '';
+      imageUrl = $('meta[property="og:image"]').attr('content') || 
+                 $('meta[name="twitter:image"]').attr('content') || 
+                 '';
     }
 
     // 4. Extract Product Specs / Details
