@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS posts (
 
 -- Insert Default Admin (username: admin, password: adminpassword)
 -- In production, the password hash must be generated using bcrypt.
--- Hash of 'adminpassword' is: $2b$10$S9o307/lT6.PkW.u0m67UuhgVfO0tZ7Fm11lE0J1rU4x8.9Z7.jFm
+-- Hash of 'adminpassword' is: $2a$10$.oU6E35HZwEwOlCwSmrU/uuTO8JpM5F2X/1qfHkX6Vn2c1XschGVS
 INSERT INTO users (username, password_hash, role, article_quota)
-VALUES ('admin', '$2b$10$S9o307/lT6.PkW.u0m67UuhgVfO0tZ7Fm11lE0J1rU4x8.9Z7.jFm', 'admin', 999999)
+VALUES ('admin', '$2a$10$.oU6E35HZwEwOlCwSmrU/uuTO8JpM5F2X/1qfHkX6Vn2c1XschGVS', 'admin', 999999)
 ON DUPLICATE KEY UPDATE username=username;
