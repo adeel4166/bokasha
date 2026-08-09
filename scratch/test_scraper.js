@@ -3,19 +3,18 @@ const cheerio = require('cheerio');
 
 async function testScrape() {
   const url = 'https://www.amazon.com/dp/B07R7Q8Z9F';
-  console.log('Fetching:', url);
+  console.log('Fetching with Fetch API:', url);
   try {
-    const response = await axios.get(url, {
+    const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Device-Memory': '8',
-      },
-      timeout: 15000,
+      }
     });
 
-    const $ = cheerio.load(response.data);
+    const html = await response.text();
+    const $ = cheerio.load(html);
     const title = $('#productTitle').text().trim() || $('title').text().trim();
     console.log('HTML Title:', title);
     
@@ -26,7 +25,7 @@ async function testScrape() {
     }
     console.log('Image URL:', imageUrl);
     
-    if (response.data.includes('api-services-support@amazon.com') || response.data.includes('Robot Check')) {
+    if (html.includes('api-services-support@amazon.com') || html.includes('Robot Check')) {
       console.log('Result: BLOCKED BY CAPTCHA');
     } else {
       console.log('Result: SUCCESS');
