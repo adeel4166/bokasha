@@ -1,0 +1,33 @@
+{
+  "name": "reviews-era",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0-rc.12",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.10.1",
+    "next": "^14.2.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sharp": "^0.35.3"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-class-properties": "^8.0.1",
+    "@babel/plugin-transform-private-methods": "^8.0.1",
+    "@babel/plugin-transform-private-property-in-object": "^8.0.1",
+    "autoprefixer": "^10.5.4",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4"
+  },
+  "optionalDependencies": {
+    "@next/swc-win32-x64-msvc": "^16.3.0"
+  }
+}
