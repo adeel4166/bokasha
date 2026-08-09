@@ -1,8 +1,8 @@
 const axios = require('axios');
 
 async function testGemini() {
-  const apiKey = 'AIzaSyDLUKpZqaRnl7R0V-tfDuB4lu-CIsM5u-c';
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const apiKey = 'YOUR_API_KEY_HERE';
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
   const title = "Gevi Household Countertop Nugget Ice Maker";
   const bulletPoints = [
