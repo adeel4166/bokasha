@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS posts (
     image_url VARCHAR(500),
     amazon_asin VARCHAR(50),
     region VARCHAR(10),
+    category VARCHAR(100),
+    badge VARCHAR(100),
     status ENUM('draft', 'published') DEFAULT 'published',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
