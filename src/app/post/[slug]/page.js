@@ -31,14 +31,12 @@ export async function generateMetadata({ params }) {
     return { title: 'Post Not Found | BOKASHA' };
   }
 
-  // Extract display title (if wrapped in h1 tag)
   let displayTitle = post.title;
   const h1Match = post.content.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
   if (h1Match) {
     displayTitle = h1Match[1];
   }
 
-  // Extract plain text excerpt for description
   let excerpt = post.content.replace(/<[^>]*>/g, ' ').substring(0, 160).trim();
   if (excerpt.length >= 160) excerpt += '...';
 
@@ -78,7 +76,6 @@ export default async function PostDetailPage({ params }) {
     if (results.length > 0) {
       post = results[0];
 
-      // Fetch tracking ID
       const trackingRows = await query(
         'SELECT tracking_id FROM user_tracking_ids WHERE user_id = ? AND region = ?',
         [post.user_id, post.region]
@@ -110,7 +107,6 @@ export default async function PostDetailPage({ params }) {
     notFound();
   }
 
-  // Extract displaying title
   let displayTitle = post.title;
   let bodyContent = post.content;
   const h1Regex = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
@@ -121,76 +117,66 @@ export default async function PostDetailPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] text-slate-800 dark:text-slate-200 flex flex-col justify-between selection:bg-amber-500 selection:text-slate-900 transition-colors duration-200">
+    <div className="min-h-screen bg-white dark:bg-[#0b0f19] text-slate-800 dark:text-slate-200 flex flex-col font-sans transition-colors duration-200 selection:bg-fuchsia-500 selection:text-white">
       
-      {/* Premium Header */}
-      <nav className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0c0f1d]/75 backdrop-blur-md sticky top-0 z-20 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center w-full gap-2 sm:gap-4">
-          <Link href="/" className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-widest hover:opacity-90 transition truncate">
-            BOKASHA
-          </Link>
-          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-            <Link href="/" className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full">
-              <span>&larr;</span> Back
+      {/* 1. TOP NAVBAR (Matching page.js) */}
+      <nav className="bg-white dark:bg-[#0b0f19] border-b border-slate-100 dark:border-slate-800/80 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+          
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-fuchsia-700 flex items-center justify-center shadow-sm">
+              <span className="text-white font-black text-xl leading-none">B</span>
+            </div>
+            <Link href="/" className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight hover:opacity-90 transition">
+              BOKASHA
             </Link>
+          </div>
+
+          <div className="flex items-center gap-3">
             <ThemeToggle />
+            <Link href="/" className="hidden sm:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold px-4 py-2 rounded-md transition">
+              &larr; Back to Products
+            </Link>
           </div>
         </div>
       </nav>
 
+      {/* 2. AFFILIATE BANNER */}
+      <div className="bg-fuchsia-50 dark:bg-fuchsia-950/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] md:text-xs font-semibold text-center py-2.5 px-4 border-b border-fuchsia-100 dark:border-fuchsia-900/50">
+        As an Amazon Associate we earn from qualifying purchases. <Link href="/disclaimer" className="underline hover:text-fuchsia-600 dark:hover:text-fuchsia-200">Learn more &gt;</Link>
+      </div>
+
       {/* Main Content Layout */}
-      <main className="max-w-6xl mx-auto w-full px-6 py-12 flex-1 animate-fadeIn">
+      <main className="max-w-5xl mx-auto w-full px-6 py-12 flex-1 animate-fadeIn">
         
-        {/* Split Hero Section - Redesigned with premium product card showcase & typography */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center mb-16">
+        {/* Product Details Section */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start mb-16">
           
-          {/* Left Column: Premium Floating Product Showcase Card & Action Button */}
-          <div className="lg:col-span-5 flex flex-col items-center w-full">
+          {/* Left Column: Product Image */}
+          <div className="flex flex-col items-center w-full sticky top-24">
             {post.image_url && (
-              <div className="w-full bg-white border border-slate-200 dark:border-slate-850 rounded-3xl p-4 flex items-center justify-center aspect-square relative group overflow-hidden shadow-md">
+              <div className="w-full bg-white dark:bg-[#13192b] border border-slate-100 dark:border-slate-800 rounded-xl p-8 flex items-center justify-center aspect-square shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={post.image_url} 
                   alt={post.title} 
-                  className="w-full h-full object-contain transition duration-500 group-hover:scale-102"
+                  className="w-full h-full object-contain filter drop-shadow-sm transition transform hover:scale-105 duration-300"
                 />
-                <span className="absolute top-4 left-4 bg-slate-900/90 text-white text-[9px] uppercase font-black tracking-widest px-2.5 py-1 rounded-md shadow-sm">
-                  Active Review
-                </span>
               </div>
             )}
-
-            {/* Price Button under Image */}
-            <div className="w-full mt-6 space-y-2 text-center">
-              <a 
-                href={affiliateUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm py-4 px-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-              >
-                <span>Check Price on Amazon</span>
-                <span className="text-base leading-none">&rarr;</span>
-              </a>
-              <p className="text-[10px] text-slate-500 font-mono">Redirects to Amazon {post.region} store</p>
-            </div>
           </div>
 
           {/* Right Column: Title Info Metadata Grid */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="space-y-6 pt-4">
             
             {/* Meta Tags / Badges */}
             <div className="flex flex-wrap items-center gap-3">
-              <span className="bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[9px] uppercase font-black tracking-widest px-3 py-1 rounded-md">
+              <span className="bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded">
                 {post.region} Store
               </span>
-              <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] uppercase font-black tracking-widest px-3 py-1 rounded-md">
+              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded">
                 {post.category || 'General'}
               </span>
-              {post.badge && (
-                <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[9px] uppercase font-black tracking-widest px-3 py-1 rounded-md">
-                  {post.badge}
-                </span>
-              )}
               <span className="text-slate-300 dark:text-slate-700 text-xs font-mono">|</span>
               <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">
                 Updated {(() => {
@@ -201,72 +187,87 @@ export default async function PostDetailPage({ params }) {
               </span>
             </div>
 
-            {/* Product Title (Optimized letter-spacing & font height) */}
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] transition duration-200">
+            {/* Product Title */}
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
               {displayTitle}
             </h1>
 
-            {/* Affiliate Disclosure Card */}
-            <div className="p-5 bg-white dark:bg-[#0c0f1d]/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm text-xs text-slate-500 dark:text-slate-400 leading-relaxed space-y-2">
-              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-widest text-[9px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Affiliate Disclosure
-              </div>
-              <p>
-                Clicking links on this page will redirect you to Amazon. As an Amazon Associate, we earn a commission on qualifying purchases at no additional expense to you. Real-time prices are verified directly on the store.
-              </p>
-            </div>
-          </div>
-
-        </section>
-
-        {/* Divider */}
-        <div className="border-t border-slate-200 dark:border-slate-800/80 mb-12"></div>
-
-        {/* Detailed Article Body */}
-        <section className="max-w-4xl mx-auto">
-          {/* Article wrapper uses light/dark Tailwind typography styles */}
-          <div 
-            className="reviews-era-article-content prose dark:prose-invert max-w-none prose-slate"
-            dangerouslySetInnerHTML={{ __html: bodyContent }} 
-          />
-
-          {/* Bottom Call to Action Card */}
-          <div className="mt-16 p-8 bg-slate-100 dark:bg-gradient-to-b dark:from-slate-900/50 dark:to-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-3xl text-center space-y-6 max-w-2xl mx-auto shadow-xl">
-            <div className="space-y-2">
-              <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">Find a Deal on Amazon?</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm">Check stock, color variants, and purchase directly on Amazon.</p>
-            </div>
-            <div className="flex flex-col items-center gap-2">
+            {/* Affiliate Button */}
+            <div className="pt-2">
               <a 
                 href={affiliateUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-full max-w-sm inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-base py-4 rounded-2xl shadow-xl shadow-amber-500/10 transition transform hover:-translate-y-0.5 duration-200"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-fuchsia-700 hover:bg-fuchsia-800 text-white font-semibold text-sm py-4 px-8 rounded-md transition shadow-md"
               >
                 <span>Check Price on Amazon</span>
                 <span className="text-lg leading-none">&rarr;</span>
               </a>
-              <span className="text-[10px] text-slate-500 dark:text-slate-600 font-mono">ASIN: {post.amazon_asin} | Region: {post.region}</span>
+              <p className="text-[11px] text-slate-500 font-medium mt-2">Redirects to Amazon {post.region} store</p>
             </div>
-          </div>
-        </section>
+            
+            <div className="border-t border-slate-100 dark:border-slate-800/80 my-8"></div>
 
+            {/* Article Content */}
+            <div 
+              className="reviews-era-article-content prose dark:prose-invert prose-slate prose-a:text-fuchsia-700 dark:prose-a:text-fuchsia-400 prose-headings:text-slate-800 dark:prose-headings:text-slate-100 prose-img:rounded-xl max-w-none text-sm md:text-base leading-relaxed text-justify"
+              dangerouslySetInnerHTML={{ __html: bodyContent }} 
+            />
+
+          </div>
+
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-850 bg-slate-100 dark:bg-[#04060c] py-12 text-center text-xs text-slate-500 px-6">
-        <div className="max-w-6xl mx-auto w-full space-y-4">
-          <p className="max-w-2xl mx-auto leading-relaxed">
-            BOKASHA is a participant in the Amazon Services LLC Associates Program. Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.
-          </p>
-          <div className="flex justify-center gap-6 text-[11px] text-slate-500 dark:text-slate-450 font-bold my-4">
-            <Link href="/privacy-policy" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Privacy Policy</Link>
-            <Link href="/terms-of-service" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Terms of Service</Link>
-            <Link href="/disclaimer" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Disclaimer</Link>
-            <Link href="/contact" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Contact Us</Link>
+      {/* 6. DARK FOOTER (Matching page.js) */}
+      <footer className="bg-[#1a2035] text-slate-300 py-16 mt-10">
+        <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-12 gap-10">
+          
+          <div className="md:col-span-5 space-y-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-fuchsia-700 flex items-center justify-center shadow-sm">
+                <span className="text-white font-black text-xl leading-none">B</span>
+              </div>
+              <span className="text-2xl font-black text-white tracking-tight">BOKASHA</span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
+              Explore product summaries, category guides, and Amazon shopping references to compare features before buying.
+            </p>
+            <div className="space-y-2">
+              <p className="text-[11px] font-bold text-slate-300">
+                Affiliate Disclosure: As an Amazon Associate we earn from qualifying purchases.
+              </p>
+              <p className="text-[10px] text-slate-500">
+                Purchases through our links are at no extra cost to you. Product availability is subject to change. Some product images and details are provided by Amazon and may change without notice.
+              </p>
+            </div>
           </div>
-          <p className="text-[10px] text-slate-400 dark:text-slate-655">&copy; {new Date().getFullYear()} BOKASHA. All rights reserved.</p>
+
+          <div className="md:col-span-3 space-y-4">
+            <h4 className="text-sm font-bold text-white mb-4">Quick Links</h4>
+            <ul className="space-y-3 text-xs text-slate-400">
+              <li><Link href="/" className="hover:text-fuchsia-400 transition">All Products</Link></li>
+              <li><Link href="/" className="hover:text-fuchsia-400 transition">Articles and Buying Guides</Link></li>
+              <li><Link href="/" className="hover:text-fuchsia-400 transition">About Us</Link></li>
+              <li><Link href="/contact" className="hover:text-fuchsia-400 transition">Contact Us</Link></li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-4 space-y-4">
+            <h4 className="text-sm font-bold text-white mb-4">Legal</h4>
+            <ul className="space-y-3 text-xs text-slate-400">
+              <li><Link href="/terms-of-service" className="hover:text-fuchsia-400 transition">Terms & Conditions</Link></li>
+              <li><Link href="/disclaimer" className="hover:text-fuchsia-400 transition">Affiliate Disclosure</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-fuchsia-400 transition">Privacy Policy</Link></li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div className="max-w-7xl mx-auto px-8 mt-16 pt-8 border-t border-slate-700/50 text-center">
+          <p className="text-[10px] text-slate-500">
+            &copy; {new Date().getFullYear()} BOKASHA. All rights reserved.
+          </p>
         </div>
       </footer>
 

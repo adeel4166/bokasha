@@ -34,8 +34,6 @@ export default function WriterDashboard() {
         router.push('/login');
       } else {
         setUser(data.user);
-        
-        // Pre-populate tracking ID for the default region (US)
         if (data.user.trackingIds) {
           const defaultTag = data.user.trackingIds.find(t => t.region === 'US');
           if (defaultTag) {
@@ -54,7 +52,6 @@ export default function WriterDashboard() {
     router.refresh();
   };
 
-  // Automatically update tracking ID field when region dropdown changes
   const handleRegionChange = (newRegion) => {
     setRegion(newRegion);
     if (user && user.trackingIds) {
@@ -62,12 +59,11 @@ export default function WriterDashboard() {
       if (matchedTag) {
         setTrackingId(matchedTag.tracking_id);
       } else {
-        setTrackingId(''); // Clear or let user type manually
+        setTrackingId('');
       }
     }
   };
 
-  // Pleasant Web Audio API Synthesizer (Double high chime)
   const playSuccessSound = () => {
     try {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -79,7 +75,7 @@ export default function WriterDashboard() {
       osc1.connect(gain1);
       gain1.connect(context.destination);
       osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(523.25, context.currentTime); // C5
+      osc1.frequency.setValueAtTime(523.25, context.currentTime); 
       gain1.gain.setValueAtTime(0.15, context.currentTime);
       gain1.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.15);
       osc1.start();
@@ -91,7 +87,7 @@ export default function WriterDashboard() {
         osc2.connect(gain2);
         gain2.connect(context.destination);
         osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(659.25, context.currentTime); // E5
+        osc2.frequency.setValueAtTime(659.25, context.currentTime);
         gain2.gain.setValueAtTime(0.15, context.currentTime);
         gain2.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.25);
         osc2.start();
@@ -134,7 +130,7 @@ export default function WriterDashboard() {
       setResult(data);
       setAsinOrUrl('');
       playSuccessSound();
-      fetchSession(); // Update limits count
+      fetchSession(); 
     } catch (err) {
       setError(err.message);
     } finally {
@@ -177,21 +173,20 @@ export default function WriterDashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-[#070a13] text-slate-800 dark:text-slate-100">
-        <span className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></span>
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-[#0b0f19] text-slate-800 dark:text-slate-100">
+        <span className="w-8 h-8 border-4 border-fuchsia-700 border-t-transparent rounded-full animate-spin"></span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-[#121b2e] via-[#090d18] to-[#04060c] light:from-slate-100 light:via-slate-200/80 light:to-white dark:from-[#121b2e] dark:via-[#090d18] dark:to-[#04060c] text-slate-800 dark:text-slate-100 flex items-center justify-center p-6 relative transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f19] text-slate-800 dark:text-slate-100 flex items-center justify-center p-6 relative transition-colors duration-200">
       
-      {/* Floating Header Actions (Absolute Positioning for cleaner card look) */}
       <div className="absolute top-6 right-6 flex items-center gap-4">
         {user.role === 'admin' && (
           <button
             onClick={() => router.push('/admin')}
-            className="bg-amber-550/10 border border-amber-550/20 text-amber-500 hover:bg-amber-550/20 text-xs px-3.5 py-2 rounded-xl font-bold transition shadow-sm"
+            className="bg-fuchsia-50 dark:bg-fuchsia-900/30 border border-fuchsia-200 dark:border-fuchsia-800/50 text-fuchsia-700 dark:text-fuchsia-400 hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900/50 text-xs px-3.5 py-2 rounded-lg font-bold transition shadow-sm"
           >
             Admin Controls
           </button>
@@ -199,67 +194,58 @@ export default function WriterDashboard() {
         <ThemeToggle />
       </div>
 
-      {/* Main Centered E-commerce Layout Card */}
-      <div className="w-full max-w-lg bg-white dark:bg-[#0c0f1d]/60 backdrop-blur-xl border border-slate-200 dark:border-slate-850/80 shadow-2xl rounded-3xl overflow-hidden flex flex-col p-6 sm:p-8 space-y-6">
+      <div className="w-full max-w-lg bg-white dark:bg-[#13192b] border border-slate-200 dark:border-slate-800 shadow-xl rounded-2xl overflow-hidden flex flex-col p-6 sm:p-8 space-y-6">
         
-        {/* Top Session Banner inside card */}
-        <div className="flex justify-between items-center bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 text-xs">
-          <span className="text-slate-655 dark:text-slate-400">
-            Logged in as <strong className="text-slate-900 dark:text-white font-black">{user.username}</strong>
+        <div className="flex justify-between items-center bg-slate-50 dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-xs">
+          <span className="text-slate-500 dark:text-slate-400">
+            Logged in as <strong className="text-slate-800 dark:text-white font-black">{user.username}</strong>
           </span>
           <button
             onClick={handleLogout}
-            className="text-amber-600 dark:text-amber-500 hover:text-amber-500 dark:hover:text-amber-400 font-extrabold transition"
+            className="text-fuchsia-700 dark:text-fuchsia-400 hover:text-fuchsia-800 dark:hover:text-fuchsia-300 font-extrabold transition"
           >
             Log out
           </button>
         </div>
 
-        {/* Title / Identity */}
         <div className="text-center space-y-2">
+          <div className="mx-auto w-10 h-10 rounded-xl bg-fuchsia-700 flex items-center justify-center shadow-sm mb-3">
+            <span className="text-white font-black text-2xl leading-none">B</span>
+          </div>
           <h1 className="text-2xl font-black tracking-widest text-slate-900 dark:text-white uppercase">
             BOKASHA
           </h1>
-          <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">
-            Amazon Product Article Generator
+          <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">
+            Product Content Generator
           </p>
         </div>
 
-        {/* Main Generator Form */}
-        <form onSubmit={handleGenerate} className="space-y-5">
+        <form onSubmit={handleGenerate} className="space-y-5 pt-4">
           
-          {/* 1. Amazon Product Input */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-xs">
-              <label className="font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                Amazon Product URL / ASIN
-              </label>
-              <div className="flex bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-slate-550 dark:text-slate-400">
-                <span className="px-2 py-0.5 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm">URL</span>
-                <span className="px-2 py-0.5 rounded">ASIN</span>
-              </div>
-            </div>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">
+              Amazon Product URL / ASIN
+            </label>
             <input
               type="text"
               required
               value={asinOrUrl}
               disabled={loading}
               onChange={(e) => handleUrlInputChange(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition disabled:opacity-50"
+              className="w-full bg-slate-50 dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-fuchsia-700 focus:border-fuchsia-700 transition disabled:opacity-50"
               placeholder="https://www.amazon.com/dp/B0GTYJWMNM..."
             />
           </div>
 
-          {/* 2. Target Region Select */}
           <div className="space-y-2">
-            <label className="block text-xs font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">
               Target Region
             </label>
             <select
               value={region}
               disabled={loading}
               onChange={(e) => handleRegionChange(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 transition disabled:opacity-50"
+              className="w-full bg-slate-50 dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-fuchsia-700 focus:border-fuchsia-700 transition disabled:opacity-50 appearance-none"
             >
               <option value="US">US - United States</option>
               <option value="UK">UK - United Kingdom</option>
@@ -270,22 +256,20 @@ export default function WriterDashboard() {
             </select>
           </div>
 
-          {/* 3. Pre-populated Affiliate Tracking Tag */}
           <div className="space-y-2">
-            <label className="block text-xs font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">
               Affiliate Tracking ID
             </label>
             <input
               type="text"
               readOnly
               value={trackingId || 'No tag configured for this region'}
-              className="w-full bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs text-slate-500 dark:text-amber-500 font-mono font-bold focus:outline-none cursor-not-allowed"
+              className="w-full bg-slate-100 dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-500 dark:text-fuchsia-500 font-mono font-bold focus:outline-none cursor-not-allowed"
             />
           </div>
 
-          {/* Error Notification Alert */}
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 rounded-2xl text-red-800 dark:text-red-200 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 rounded-lg text-red-800 dark:text-red-200 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <span>{error}</span>
               {duplicateSlug && (
                 <div className="flex gap-2 w-full sm:w-auto">
@@ -297,7 +281,7 @@ export default function WriterDashboard() {
                       setDupCopied(true);
                       setTimeout(() => setDupCopied(false), 2000);
                     }}
-                    className="flex-1 sm:flex-none bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-350 dark:border-slate-700 px-3.5 py-1.5 rounded-lg font-bold text-[10px] transition"
+                    className="flex-1 sm:flex-none bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-md font-bold text-[11px] transition"
                   >
                     {dupCopied ? 'Copied! ✓' : 'Copy Link'}
                   </button>
@@ -305,7 +289,7 @@ export default function WriterDashboard() {
                     href={`/post/${duplicateSlug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 sm:flex-none text-center bg-red-600 hover:bg-red-500 text-white px-3.5 py-1.5 rounded-lg font-bold text-[10px] transition"
+                    className="flex-1 sm:flex-none text-center bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md font-bold text-[11px] transition"
                   >
                     View Post
                   </a>
@@ -314,15 +298,14 @@ export default function WriterDashboard() {
             </div>
           )}
 
-          {/* Success Notification Alert */}
           {result && (
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl text-emerald-800 dark:text-emerald-200 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fadeIn">
+            <div className="p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-lg text-green-800 dark:text-green-300 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <span>{result.message}</span>
               <div className="flex gap-2 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex-1 sm:flex-none bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-350 dark:border-slate-700 px-3.5 py-1.5 rounded-lg font-bold text-[10px] transition"
+                  className="flex-1 sm:flex-none bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-md font-bold text-[11px] transition"
                 >
                   {copied ? 'Copied! ✓' : 'Copy Link'}
                 </button>
@@ -330,7 +313,7 @@ export default function WriterDashboard() {
                   href={`/post/${result.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 sm:flex-none text-center bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg font-bold text-[10px] transition"
+                  className="flex-1 sm:flex-none text-center bg-fuchsia-700 hover:bg-fuchsia-800 text-white px-3 py-1.5 rounded-md font-bold text-[11px] transition"
                 >
                   View Post
                 </a>
@@ -338,15 +321,14 @@ export default function WriterDashboard() {
             </div>
           )}
 
-          {/* Submit Button with realtime loading timer */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-4 px-6 rounded-2xl shadow-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-75 disabled:cursor-not-allowed"
+            className="w-full bg-fuchsia-700 hover:bg-fuchsia-800 text-white font-bold text-sm py-4 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-75 disabled:cursor-not-allowed mt-4"
           >
             {loading ? (
               <>
-                <span className="w-5 h-5 border-3 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                 <span>Generating Review... {timerSeconds}s elapsed</span>
               </>
             ) : (
@@ -355,10 +337,9 @@ export default function WriterDashboard() {
           </button>
         </form>
 
-        {/* Card Footer: Monthly Quota Details */}
-        <div className="pt-5 border-t border-slate-250 dark:border-slate-850 flex justify-between items-center text-[10px] font-bold text-slate-450 uppercase tracking-widest">
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
           <span>Monthly Quota:</span>
-          <span>{user.used_quota} / {user.article_quota} Articles Generated</span>
+          <span>{user.used_quota} / {user.article_quota} Articles</span>
         </div>
 
       </div>
