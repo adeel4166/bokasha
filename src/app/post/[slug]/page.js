@@ -117,30 +117,8 @@ export default async function PostDetailPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0b0f19] text-slate-800 dark:text-slate-200 flex flex-col font-sans transition-colors duration-200 selection:bg-fuchsia-500 selection:text-white">
+    <div className="flex flex-col font-sans transition-colors duration-200 selection:bg-fuchsia-500 selection:text-white w-full">
       
-      {/* 1. TOP NAVBAR (Matching page.js) */}
-      <nav className="bg-white dark:bg-[#0b0f19] border-b border-slate-100 dark:border-slate-800/80 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
-          
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-fuchsia-700 flex items-center justify-center shadow-sm">
-              <span className="text-white font-black text-xl leading-none">B</span>
-            </div>
-            <Link href="/" className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight hover:opacity-90 transition">
-              BOKASHA
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Link href="/" className="hidden sm:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold px-4 py-2 rounded-md transition">
-              &larr; Back to Products
-            </Link>
-          </div>
-        </div>
-      </nav>
-
       {/* 2. AFFILIATE BANNER */}
       <div className="bg-fuchsia-50 dark:bg-fuchsia-950/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] md:text-xs font-semibold text-center py-2.5 px-4 border-b border-fuchsia-100 dark:border-fuchsia-900/50">
         As an Amazon Associate we earn from qualifying purchases. <Link href="/disclaimer" className="underline hover:text-fuchsia-600 dark:hover:text-fuchsia-200">Learn more &gt;</Link>
@@ -218,58 +196,6 @@ export default async function PostDetailPage({ params }) {
 
         </section>
       </main>
-
-      {/* 6. DARK FOOTER (Matching page.js) */}
-      <footer className="bg-[#1a2035] text-slate-300 py-16 mt-10">
-        <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-12 gap-10">
-          
-          <div className="md:col-span-5 space-y-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-fuchsia-700 flex items-center justify-center shadow-sm">
-                <span className="text-white font-black text-xl leading-none">B</span>
-              </div>
-              <span className="text-2xl font-black text-white tracking-tight">BOKASHA</span>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
-              Explore product summaries, category guides, and Amazon shopping references to compare features before buying.
-            </p>
-            <div className="space-y-2">
-              <p className="text-[11px] font-bold text-slate-300">
-                Affiliate Disclosure: As an Amazon Associate we earn from qualifying purchases.
-              </p>
-              <p className="text-[10px] text-slate-500">
-                Purchases through our links are at no extra cost to you. Product availability is subject to change. Some product images and details are provided by Amazon and may change without notice.
-              </p>
-            </div>
-          </div>
-
-          <div className="md:col-span-3 space-y-4">
-            <h4 className="text-sm font-bold text-white mb-4">Quick Links</h4>
-            <ul className="space-y-3 text-xs text-slate-400">
-              <li><Link href="/" className="hover:text-fuchsia-400 transition">All Products</Link></li>
-              <li><Link href="/" className="hover:text-fuchsia-400 transition">Articles and Buying Guides</Link></li>
-              <li><Link href="/" className="hover:text-fuchsia-400 transition">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-fuchsia-400 transition">Contact Us</Link></li>
-            </ul>
-          </div>
-
-          <div className="md:col-span-4 space-y-4">
-            <h4 className="text-sm font-bold text-white mb-4">Legal</h4>
-            <ul className="space-y-3 text-xs text-slate-400">
-              <li><Link href="/terms-of-service" className="hover:text-fuchsia-400 transition">Terms & Conditions</Link></li>
-              <li><Link href="/disclaimer" className="hover:text-fuchsia-400 transition">Affiliate Disclosure</Link></li>
-              <li><Link href="/privacy-policy" className="hover:text-fuchsia-400 transition">Privacy Policy</Link></li>
-            </ul>
-          </div>
-
-        </div>
-
-        <div className="max-w-7xl mx-auto px-8 mt-16 pt-8 border-t border-slate-700/50 text-center">
-          <p className="text-[10px] text-slate-500">
-            &copy; {new Date().getFullYear()} BOKASHA. All rights reserved.
-          </p>
-        </div>
-      </footer>
 
     </div>
   );

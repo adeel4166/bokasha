@@ -1,5 +1,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
+import GlobalNavbar from '@/components/GlobalNavbar';
+import GlobalFooter from '@/components/GlobalFooter';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -49,8 +51,12 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className={`${inter.className} bg-slate-50 text-slate-900 dark:bg-[#070a13] dark:text-slate-100 min-h-screen transition-colors duration-200`}>
-        {children}
+      <body className={`${inter.className} bg-slate-50 text-slate-900 dark:bg-[#070a13] dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200`}>
+        <GlobalNavbar />
+        <main className="flex-1 w-full">
+          {children}
+        </main>
+        <GlobalFooter />
       </body>
     </html>
   );

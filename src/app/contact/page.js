@@ -19,25 +19,8 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] text-slate-800 dark:text-slate-200 flex flex-col justify-between transition-colors duration-200">
-      
-      {/* Navbar */}
-      <nav className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0c0f1d]/75 backdrop-blur sticky top-0 z-20 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex justify-between items-center w-full">
-          <Link href="/" className="text-xl font-black text-slate-900 dark:text-white tracking-widest hover:opacity-90 transition">
-            BOKASHA
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
-              &larr; Back to Home
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </nav>
-
-      {/* Content */}
-      <main className="max-w-xl mx-auto w-full px-6 py-12 flex-1 flex flex-col justify-center">
+    <div className="flex-1 w-full bg-slate-50 dark:bg-[#070a13] text-slate-800 dark:text-slate-200 transition-colors duration-200">
+      <main className="max-w-xl mx-auto w-full px-6 py-16 flex flex-col justify-center">
         <div className="bg-white dark:bg-[#0c0f1d]/40 p-8 rounded-3xl border border-slate-200 dark:border-slate-850 shadow-md space-y-6">
           
           <div className="text-center">
@@ -59,7 +42,7 @@ export default function ContactPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/45 focus:border-amber-500 transition"
+                className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/45 focus:border-fuchsia-500 transition"
                 placeholder="Enter your name"
               />
             </div>
@@ -71,7 +54,7 @@ export default function ContactPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/45 focus:border-amber-500 transition"
+                className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/45 focus:border-fuchsia-500 transition"
                 placeholder="Enter your email"
               />
             </div>
@@ -83,14 +66,14 @@ export default function ContactPage() {
                 rows="4"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/45 focus:border-amber-500 transition resize-none text-sm"
+                className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/45 focus:border-fuchsia-500 transition resize-none text-sm"
                 placeholder="Write your message here..."
               ></textarea>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-3.5 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+              className="w-full bg-gradient-to-r from-fuchsia-600 to-fuchsia-700 hover:from-fuchsia-500 hover:to-fuchsia-600 text-white font-black py-3.5 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
             >
               Send Message
             </button>
@@ -98,14 +81,6 @@ export default function ContactPage() {
 
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#04060c] py-8 text-center text-xs text-slate-500 px-6">
-        <div className="max-w-4xl mx-auto w-full">
-          <p>&copy; {new Date().getFullYear()} BOKASHA. All rights reserved.</p>
-        </div>
-      </footer>
-
     </div>
   );
 }
