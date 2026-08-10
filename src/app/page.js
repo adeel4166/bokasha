@@ -1,7 +1,6 @@
 import { query } from '@/lib/db';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
-import HeroCarousel from '@/components/HeroCarousel';
 
 export const revalidate = 60;
 
@@ -9,6 +8,7 @@ export default async function BlogHome({ searchParams }) {
   const searchQuery = searchParams?.q || '';
   const filterRegion = searchParams?.region || '';
   const filterCategory = searchParams?.category || '';
+  const isLatest = searchParams?.latest === 'true';
 
   let databasePosts = [];
   try {
@@ -30,93 +30,19 @@ export default async function BlogHome({ searchParams }) {
       params.push(filterCategory);
     }
 
+    if (isLatest) {
+      sql += ' AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)';
+    }
+
     sql += ' ORDER BY created_at DESC';
     databasePosts = await query(sql, params);
   } catch (error) {
     console.error('Failed to load posts from database:', error);
   }
 
-  // Pre-populate standard category placeholders if database has no posts, to make the site look fully established
-  const mockPlaceholders = {
-    'Electronics': [
-      {
-        title: 'Sony WH-1000XM4 Wireless Premium Noise Cancelling Headphones',
-        slug: '#',
-        image_url: 'https://m.media-amazon.com/images/I/71o8Q5hCeVL._AC_SL1500_.jpg',
-        region: 'US',
-        category: 'Electronics',
-        badge: 'Top Pick',
-        content: '<p>Experience industry-leading noise cancellation with Sony\'s premier over-ear wireless headphones, featuring custom-tuned audio drivers and smart ambient controls.</p>',
-        created_at: new Date('2026-08-01')
-      },
-      {
-        title: 'Logitech MX Master 3S Advanced Wireless Performance Mouse',
-        slug: '#',
-        image_url: 'https://m.media-amazon.com/images/I/61ni3t1ryQL._AC_SL1500_.jpg',
-        region: 'UK',
-        category: 'Electronics',
-        badge: 'Editor\'s Choice',
-        content: '<p>The ultimate performance mouse designed for developers and creators. Offers hyper-fast MagSpeed scrolling and 8K DPI tracking on any surface.</p>',
-        created_at: new Date('2026-08-03')
-      }
-    ],
-    'Home & Kitchen': [
-      {
-        title: 'Instant Pot Duo Plus 9-in-1 Smart Electric Pressure Cooker',
-        slug: '#',
-        image_url: 'https://m.media-amazon.com/images/I/618m17VjJvL._AC_SL1500_.jpg',
-        region: 'CA',
-        category: 'Home & Kitchen',
-        badge: 'Best Seller',
-        content: '<p>The classic kitchen must-have, combining pressure cooking, slow cooking, rice cooking, yogurt making, steaming, and warming in one simple device.</p>',
-        created_at: new Date('2026-08-04')
-      }
-    ],
-    'Garden & Outdoors': [
-      {
-        title: 'Karcher K4 Power Control Premium Home Pressure Washer',
-        slug: '#',
-        image_url: 'https://m.media-amazon.com/images/I/71LhMscRslL._AC_SL1500_.jpg',
-        region: 'DE',
-        category: 'Garden & Outdoors',
-        badge: 'Premium Pick',
-        content: '<p>Clean stone terraces, driveways, and vehicles with ease using the power control trigger gun and spray lances with direct app guidance.</p>',
-        created_at: new Date('2026-08-05')
-      }
-    ],
-    'Sports & Outdoors': [
-      {
-        title: 'Coleman Cabin Tent with Instant Setup Technology',
-        slug: '#',
-        image_url: 'https://m.media-amazon.com/images/I/71pE1S+Q6yL._AC_SL1500_.jpg',
-        region: 'US',
-        category: 'Sports & Outdoors',
-        badge: 'Best Value',
-        content: '<p>Set up camp in less than 60 seconds with pre-attached poles. Features rainfly integration and double-thick fabric to handle rugged environments.</p>',
-        created_at: new Date('2026-08-06')
-      }
-    ]
-  };
-
-  // Merge database posts and mock placeholders
   const categoriesList = ['Electronics', 'Home & Kitchen', 'Garden & Outdoors', 'Sports & Outdoors', 'Health & Personal Care', 'Automotive', 'Tools & DIY'];
   const allPosts = [...databasePosts];
 
-  // Disabled mock placeholders merging to ensure only real database posts are shown on bokasha.com
-
-  // Group combined posts by category
-  const postsByCategory = {};
-  categoriesList.forEach(cat => {
-    postsByCategory[cat] = allPosts.filter(post => post.category === cat);
-  });
-
-  // Featured Posts for Carousel (top 4 latest posts) and Secondary Featured (Latest Additions)
-  const carouselPosts = allPosts.slice(0, 4);
-  const secondaryFeatured = allPosts.length >= 7
-    ? allPosts.slice(4, 7)
-    : allPosts.filter(p => !carouselPosts.includes(p)).slice(0, 3);
-
-  // Region lookup details for count badge
   const regions = [
     { code: 'US', name: 'United States' },
     { code: 'UK', name: 'United Kingdom' },
@@ -126,302 +52,235 @@ export default async function BlogHome({ searchParams }) {
     { code: 'IT', name: 'Italy' }
   ];
 
-  const getBadgeColor = (badge) => {
-    const clean = badge?.toLowerCase() || '';
-    if (clean.includes('top pick')) return 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-250 dark:border-emerald-800';
-    if (clean.includes('best seller')) return 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border-indigo-250 dark:border-indigo-800';
-    if (clean.includes('editor')) return 'bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border-blue-250 dark:border-indigo-850';
-    return 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-250 dark:border-amber-800';
-  };
-
-  // Extracts plain text snippet from the HTML review content
-  const getExcerpt = (htmlContent) => {
-    if (!htmlContent) return '';
-    const clean = htmlContent.replace(/<[^>]*>/g, ' ');
-    return clean.length > 150 ? clean.substring(0, 150) + '...' : clean;
-  };
-
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070a13] text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-amber-500 selection:text-slate-900 transition-colors duration-200 relative">
+    <div className="min-h-screen bg-white dark:bg-[#0b0f19] text-slate-800 dark:text-slate-200 flex flex-col font-sans transition-colors duration-200">
+      
+      {/* 1. TOP NAVBAR */}
+      <nav className="bg-white dark:bg-[#0b0f19] border-b border-slate-100 dark:border-slate-800/80 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+          
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-fuchsia-700 flex items-center justify-center shadow-sm">
+              <span className="text-white font-black text-xl leading-none">B</span>
+            </div>
+            <Link href="/" className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight hover:opacity-90 transition">
+              BOKASHA
+            </Link>
+          </div>
 
-      {/* Glow backgrounds */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[300px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute top-20 right-1/4 w-[600px] h-[300px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none"></div>
-
-      {/* Navigation Header */}
-      <nav className="border-b border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-[#0c0f1d]/75 backdrop-blur-md sticky top-0 z-20 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 w-full">
-          <Link href="/" className="text-2xl font-black text-slate-900 dark:text-white tracking-widest hover:opacity-90 transition">
-            BOKASHA
-          </Link>
-
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-            {/* Search Input */}
-            <form action="/" method="GET" className="relative w-full sm:w-80">
+          <div className="flex-1 max-w-xl hidden md:block">
+            <form action="/" method="GET" className="relative w-full group">
+              <svg className="w-4 h-4 text-slate-400 absolute left-4 top-3 transition-colors group-focus-within:text-fuchsia-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
               <input
                 type="text"
                 name="q"
                 defaultValue={searchQuery}
                 placeholder="Search products..."
-                className="w-full bg-slate-100 dark:bg-[#070a13]/85 border border-slate-300 dark:border-slate-800 rounded-full px-5 py-2.5 pl-11 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition duration-200 shadow-inner"
+                className="w-full bg-slate-50 dark:bg-[#13192b] border border-slate-200 dark:border-slate-800 rounded-md px-5 py-2.5 pl-11 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-fuchsia-500 focus:ring-1 focus:ring-fuchsia-500 transition-all shadow-sm"
               />
-              <svg className="w-5 h-5 text-slate-500 absolute left-4 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
             </form>
+          </div>
+
+          <div className="flex items-center gap-3">
             <ThemeToggle />
+            <Link href="/contact" className="hidden sm:flex items-center gap-1.5 bg-fuchsia-700 hover:bg-fuchsia-800 text-white text-sm font-semibold px-4 py-2 rounded-md transition shadow-sm">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              Contact Us
+            </Link>
+            <Link href="/login" className="hidden sm:flex items-center gap-1.5 bg-white dark:bg-transparent border border-fuchsia-700 text-fuchsia-700 dark:text-fuchsia-400 text-sm font-semibold px-4 py-2 rounded-md hover:bg-fuchsia-50 dark:hover:bg-fuchsia-900/20 transition">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+              Login
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto w-full px-6 py-10 flex-1 space-y-16">
+      {/* 2. SECONDARY NAVBAR (Categories) */}
+      <div className="bg-white dark:bg-[#0b0f19] border-b border-slate-100 dark:border-slate-800/50 hidden md:block">
+        <div className="max-w-7xl mx-auto px-8">
+          <ul className="flex items-center gap-8 py-3 text-[13px] font-semibold text-slate-600 dark:text-slate-300">
+            {categoriesList.slice(0, 5).map(cat => (
+              <li key={cat}>
+                <Link href={`/?category=${encodeURIComponent(cat)}`} className="hover:text-fuchsia-700 dark:hover:text-fuchsia-400 transition flex items-center gap-1">
+                  {cat}
+                  <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link href="/" className="hover:text-fuchsia-700 dark:hover:text-fuchsia-400 transition flex items-center gap-1">
+                See All
+                <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </div>
 
-        {/* 1. HERO FEATURED SECTION (Split design layout with dynamic sliding Carousel) */}
-        {!searchQuery && !filterRegion && !filterCategory && carouselPosts.length > 0 && (
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+      {/* 3. AFFILIATE BANNER */}
+      <div className="bg-fuchsia-50 dark:bg-fuchsia-950/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] md:text-xs font-semibold text-center py-2.5 px-4 border-b border-fuchsia-100 dark:border-fuchsia-900/50">
+        As an Amazon Associate we earn from qualifying purchases. <Link href="/disclaimer" className="underline hover:text-fuchsia-600 dark:hover:text-fuchsia-200">Learn more &gt;</Link>
+      </div>
 
-            {/* Left Column: Horizontal Split Carousel */}
-            <div className="lg:col-span-8">
-              <HeroCarousel posts={carouselPosts} />
-            </div>
+      {/* 4. MAIN CONTENT */}
+      <main className="max-w-7xl mx-auto w-full px-4 md:px-8 py-10 flex-1">
+        
+        <div className="space-y-6 mb-10">
+          <h1 className="text-3xl font-bold text-slate-700 dark:text-slate-200 tracking-tight">
+            {filterCategory ? filterCategory : 'All Products'}
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Browse product recommendations with links to trusted retailers
+          </p>
 
+          {/* Top Filters & Tabs */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/" className={`px-5 py-2 text-sm font-semibold rounded-md transition ${!isLatest ? 'bg-fuchsia-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+              All Products
+            </Link>
+            <Link href="/?latest=true" className={`px-5 py-2 text-sm font-semibold rounded-md transition flex items-center gap-2 ${isLatest ? 'bg-fuchsia-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              Latest (24h)
+            </Link>
+          </div>
 
-            {/* Right Column: "Latest Additions" */}
-            <div className="lg:col-span-4 flex flex-col justify-between space-y-4">
-              <div className="border-l-4 border-amber-500 pl-3">
-                <h3 className="text-xs uppercase font-black tracking-widest text-slate-400 dark:text-slate-500">
-                  Latest Additions
-                </h3>
-              </div>
-
-              <div className="flex-1 grid grid-cols-1 gap-4">
-                {secondaryFeatured.map(post => (
-                  <div
-                    key={post.slug}
-                    className="bg-white dark:bg-[#0c0f1d]/40 border border-slate-200 dark:border-slate-850 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-800 transition flex gap-4 items-center group"
-                  >
-                    <div className="w-16 h-16 bg-white border border-slate-150 dark:border-slate-850/50 rounded-xl p-2 flex items-center justify-center flex-shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={post.image_url} alt={post.title} className="max-h-full object-contain" />
-                    </div>
-                    <div className="space-y-1 min-w-0">
-                      <span className="text-[9px] uppercase font-bold text-amber-500 tracking-wider block">
-                        {post.category}
-                      </span>
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-white hover:text-amber-500 transition line-clamp-2 leading-snug">
-                        {post.slug === '#' ? (
-                          post.title
-                        ) : (
-                          <Link href={`/post/${post.slug}`}>{post.title}</Link>
-                        )}
-                      </h4>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </section>
-        )}
-
-        {/* 2. GREEN BRAND BANNER (Optimized design with amber search accent) */}
-        <section className="bg-gradient-to-r from-emerald-600 via-emerald-650 to-emerald-700 dark:from-emerald-800/80 dark:to-teal-900/60 rounded-3xl p-8 md:p-12 shadow-xl text-center space-y-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none transition-transform duration-1000 group-hover:scale-110"></div>
-          <div className="absolute bottom-0 left-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-          <h3 className="text-2xl md:text-4xl font-black text-white tracking-tight leading-tight max-w-2xl mx-auto drop-shadow-sm">
-            Check our reviews before you buy anything. Ever.
-          </h3>
-          <div className="relative max-w-xl mx-auto pt-2">
-            <form action="/" method="GET" className="flex flex-col sm:flex-row shadow-lg sm:rounded-full rounded-2xl bg-white dark:bg-[#070a13] p-2 border border-emerald-500/30 dark:border-slate-800 gap-2 sm:gap-0">
-              <input
-                type="text"
+          {/* Search & Country Filter Row */}
+          <div className="flex flex-col md:flex-row gap-4 items-center border-t border-slate-100 dark:border-slate-800/80 pt-6">
+            
+            <form action="/" method="GET" className="w-full md:flex-1 relative">
+              <input 
+                type="text" 
                 name="q"
                 defaultValue={searchQuery}
-                placeholder="Search products by title, region, or category..."
-                className="flex-1 bg-transparent text-slate-900 dark:text-slate-100 border-none px-5 py-3 text-sm md:text-base focus:outline-none placeholder-slate-400 w-full rounded-xl sm:rounded-full"
+                placeholder="Search products..." 
+                className="w-full bg-white dark:bg-[#13192b] border border-slate-200 dark:border-slate-800 rounded-md px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200 focus:border-fuchsia-500 focus:outline-none transition shadow-sm"
               />
-              <button
-                type="submit"
-                className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs md:text-sm uppercase px-8 py-3.5 rounded-xl sm:rounded-full transition shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-              >
+              <button type="submit" className="absolute right-0 top-0 bottom-0 bg-fuchsia-700 hover:bg-fuchsia-800 text-white px-6 rounded-r-md text-sm font-semibold transition">
                 Search
               </button>
             </form>
-          </div>
-        </section>
 
-        {/* 3. BROWSE BY POPULAR CATEGORIES SECTION (Grid loop) */}
-        <section className="space-y-12">
-          <div className="text-center space-y-2 max-w-2xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              Browse our most popular categories
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Handpicked Amazon reviews organized by technical features, pros, and cons.
-            </p>
-          </div>
-
-          <div className="space-y-12">
-            {categoriesList.map(catName => {
-              const catPosts = postsByCategory[catName] || [];
-              if (catPosts.length === 0) return null;
-
-              return (
-                <div
-                  key={catName}
-                  className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-slate-200 dark:border-slate-850/80 pb-10"
-                >
-                  {/* Left Column: Category Label Card */}
-                  <div className="lg:col-span-3 bg-white dark:bg-[#0c0f1d]/30 border border-slate-200 dark:border-slate-850 p-6 rounded-2xl shadow-sm">
-                    <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight">
-                      {catName}
-                    </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-                      Latest guides, hands-on picks, and dynamic product specs sheets.
-                    </p>
-                    <Link
-                      href={`/?category=${encodeURIComponent(catName)}`}
-                      className="text-xs text-amber-500 font-bold hover:text-amber-400 transition mt-4 inline-flex items-center gap-1"
-                    >
-                      View all in category &rarr;
-                    </Link>
-                  </div>
-
-                  {/* Right Column: Dynamic E-commerce Cards Grid */}
-                  <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {catPosts.slice(0, 3).map(post => (
-                      <article
-                        key={post.slug}
-                        className="bg-white dark:bg-[#0c0f1d]/40 rounded-2xl border border-slate-200 dark:border-slate-850 hover:border-slate-350 dark:hover:border-slate-750 overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group"
-                      >
-                        {/* Image Panel */}
-                        <div className="relative aspect-video w-full bg-white flex items-center justify-center p-4 border-b border-slate-100 dark:border-slate-850">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={post.image_url} alt={post.title} className="max-h-full object-contain filter drop-shadow-sm group-hover:scale-102 transition duration-200" />
-                          <span className="absolute top-2 left-2 bg-slate-900/90 dark:bg-slate-950/85 text-white dark:text-slate-200 text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
-                            {post.region}
-                          </span>
-                          {post.badge && (
-                            <span className={`absolute top-2 right-2 border text-[8px] uppercase font-black tracking-wider px-2 py-0.5 rounded shadow-sm ${getBadgeColor(post.badge)}`}>
-                              {post.badge}
-                            </span>
-                          )}
-                        </div>
-                        {/* Article Text Content */}
-                        <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                          <div className="space-y-2">
-                            <span className="text-[9px] font-bold text-amber-500 uppercase tracking-widest block">
-                              {post.category}
-                            </span>
-                            <h4 className="text-sm font-bold text-slate-800 dark:text-white line-clamp-2 leading-snug group-hover:text-amber-500 transition">
-                              {post.slug === '#' ? (
-                                post.title
-                              ) : (
-                                <Link href={`/post/${post.slug}`}>{post.title}</Link>
-                              )}
-                            </h4>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed text-justify">
-                              {getExcerpt(post.content)}
-                            </p>
-                          </div>
-                          <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono pt-3 border-t border-slate-100 dark:border-slate-850/80">
-                            <span>
-                              {(() => {
-                                const d = new Date(post.created_at);
-                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                                return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-                              })()}
-                            </span>
-                            {post.slug !== '#' ? (
-                              <Link href={`/post/${post.slug}`} className="text-amber-500 font-bold hover:underline">
-                                Read Review
-                              </Link>
-                            ) : (
-                              <span className="text-slate-400 italic">Sample Review</span>
-                            )}
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* 4. BROWSE REVIEWS BY REGION */}
-        <section className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-3xl text-center space-y-4">
-          <h3 className="text-sm font-extrabold text-emerald-800 dark:text-emerald-400 uppercase tracking-widest">
-            Browse Reviews By Region
-          </h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            {regions.map(r => {
-              const isActive = filterRegion === r.code;
-              return (
-                <Link
-                  key={r.code}
-                  href={`/?region=${r.code}`}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition border ${isActive
-                      ? 'bg-emerald-600 border-emerald-700 text-white shadow-lg'
-                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-300 hover:border-slate-350 dark:hover:border-slate-700'
-                    }`}
-                >
-                  {r.name} ({r.code})
-                </Link>
-              );
-            })}
-            {(filterRegion || filterCategory || searchQuery) && (
-              <Link
-                href="/"
-                className="px-4 py-2 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold hover:bg-rose-500/20 transition"
+            <div className="flex gap-4 w-full md:w-auto">
+              <select 
+                className="w-full md:w-48 bg-white dark:bg-[#13192b] border border-slate-200 dark:border-slate-800 rounded-md px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 focus:outline-none shadow-sm appearance-none cursor-pointer"
+                onChange={(e) => {
+                  if (typeof window !== 'undefined') {
+                    window.location.href = `/?category=${encodeURIComponent(e.target.value)}`;
+                  }
+                }}
               >
-                Reset Filters ×
-              </Link>
-            )}
-          </div>
-        </section>
+                <option value="">Categories...</option>
+                {categoriesList.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
 
-        {/* 5. WHO WE ARE & COUNTER METRICS */}
-        <section className="grid grid-cols-1 md:grid-cols-4 gap-6 py-8 border-t border-b border-slate-200 dark:border-slate-850">
-          <div className="md:col-span-2 space-y-2">
-            <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">
-              Who is BOKASHA?
-            </h3>
-            <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed">
-              We turn complex product listings and descriptions into structured buying advice. Every article is written by our system analyzing real-time Amazon parameters to help shoppers compare options and shop with confidence.
-            </p>
+              <select 
+                className="w-full md:w-48 bg-white dark:bg-[#13192b] border border-slate-200 dark:border-slate-800 rounded-md px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 focus:outline-none shadow-sm appearance-none cursor-pointer"
+                onChange={(e) => {
+                  if (typeof window !== 'undefined') {
+                    window.location.href = `/?region=${e.target.value}`;
+                  }
+                }}
+                defaultValue={filterRegion}
+              >
+                <option value="">Filter by country</option>
+                {regions.map(r => <option key={r.code} value={r.code}>{r.name}</option>)}
+              </select>
+            </div>
           </div>
-          <div className="bg-white dark:bg-[#0c0f1d]/30 border border-slate-200 dark:border-slate-850 p-5 rounded-2xl text-center space-y-1 shadow-sm">
-            <span className="text-2xl font-black text-amber-500 block">{databasePosts.length}</span>
-            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Active Reviews</span>
-          </div>
+          
+          <p className="text-xs text-slate-400 font-medium pt-2">
+            Showing {allPosts.length} products
+          </p>
+        </div>
 
-          <div className="bg-white dark:bg-[#0c0f1d]/30 border border-slate-200 dark:border-slate-850 p-5 rounded-2xl text-center space-y-1 shadow-sm">
-            <span className="text-2xl font-black text-emerald-500 block">{regions.length}</span>
-            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Regions Monitored</span>
+        {/* 5. PRODUCT GRID */}
+        {allPosts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
+            {allPosts.map((post) => (
+              <div key={post.slug} className="group flex flex-col items-center text-center">
+                
+                <Link href={`/post/${post.slug}`} className="w-full bg-white dark:bg-[#070a13] rounded-xl p-4 flex items-center justify-center aspect-square mb-4 transition transform group-hover:scale-105 duration-300">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={post.image_url} alt={post.title} className="w-full h-full object-contain filter drop-shadow-sm" />
+                </Link>
+
+                <div className="flex flex-col flex-1 justify-between w-full space-y-4">
+                  <Link href={`/post/${post.slug}`}>
+                    <h3 className="text-[13px] md:text-sm font-bold text-slate-700 dark:text-slate-200 line-clamp-2 leading-snug group-hover:text-fuchsia-700 dark:group-hover:text-fuchsia-400 transition-colors">
+                      {post.title}
+                    </h3>
+                  </Link>
+
+                  <Link 
+                    href={`/post/${post.slug}`}
+                    className="w-full bg-fuchsia-700 hover:bg-fuchsia-800 text-white font-semibold text-xs py-3 px-4 rounded-md transition flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    See Details
+                    <span className="text-lg leading-none">&rarr;</span>
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
-        </section>
+        ) : (
+          <div className="text-center py-20">
+            <h3 className="text-xl text-slate-500">No products found matching your criteria.</h3>
+          </div>
+        )}
 
       </main>
 
-      {/* Global Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#04060c] py-12 text-center text-xs text-slate-500 px-6 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto w-full space-y-6">
-          <p className="max-w-2xl mx-auto leading-relaxed">
-            <strong>Affiliate Disclosure:</strong> BOKASHA is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.
-          </p>
-          <div className="flex justify-center gap-6 text-[11px] text-slate-500 dark:text-slate-400 font-bold">
-            <Link href="/privacy-policy" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Privacy Policy</Link>
-            <Link href="/terms-of-service" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Terms of Service</Link>
-            <Link href="/disclaimer" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Disclaimer</Link>
-            <Link href="/contact" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Contact Us</Link>
-            <span className="text-slate-300 dark:text-slate-800">|</span>
-
+      {/* 6. DARK FOOTER */}
+      <footer className="bg-[#1a2035] text-slate-300 py-16 mt-10">
+        <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-12 gap-10">
+          
+          <div className="md:col-span-5 space-y-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-fuchsia-700 flex items-center justify-center shadow-sm">
+                <span className="text-white font-black text-xl leading-none">B</span>
+              </div>
+              <span className="text-2xl font-black text-white tracking-tight">BOKASHA</span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
+              Explore product summaries, category guides, and Amazon shopping references to compare features before buying.
+            </p>
+            <div className="space-y-2">
+              <p className="text-[11px] font-bold text-slate-300">
+                Affiliate Disclosure: As an Amazon Associate we earn from qualifying purchases.
+              </p>
+              <p className="text-[10px] text-slate-500">
+                Purchases through our links are at no extra cost to you. Product availability is subject to change. Some product images and details are provided by Amazon and may change without notice.
+              </p>
+            </div>
           </div>
-          <p className="text-[10px] text-slate-400 dark:text-slate-600">&copy; {new Date().getFullYear()} BOKASHA. All rights reserved.</p>
+
+          <div className="md:col-span-3 space-y-4">
+            <h4 className="text-sm font-bold text-white mb-4">Quick Links</h4>
+            <ul className="space-y-3 text-xs text-slate-400">
+              <li><Link href="/" className="hover:text-fuchsia-400 transition">All Products</Link></li>
+              <li><Link href="/" className="hover:text-fuchsia-400 transition">Articles and Buying Guides</Link></li>
+              <li><Link href="/" className="hover:text-fuchsia-400 transition">About Us</Link></li>
+              <li><Link href="/contact" className="hover:text-fuchsia-400 transition">Contact Us</Link></li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-4 space-y-4">
+            <h4 className="text-sm font-bold text-white mb-4">Legal</h4>
+            <ul className="space-y-3 text-xs text-slate-400">
+              <li><Link href="/terms-of-service" className="hover:text-fuchsia-400 transition">Terms & Conditions</Link></li>
+              <li><Link href="/disclaimer" className="hover:text-fuchsia-400 transition">Affiliate Disclosure</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-fuchsia-400 transition">Privacy Policy</Link></li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div className="max-w-7xl mx-auto px-8 mt-16 pt-8 border-t border-slate-700/50 text-center">
+          <p className="text-[10px] text-slate-500">
+            &copy; {new Date().getFullYear()} BOKASHA. All rights reserved.
+          </p>
         </div>
       </footer>
 
