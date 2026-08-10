@@ -6,6 +6,29 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata = {
   title: 'BOKASHA - Verified Product Reviews & Buying Guides',
   description: 'Unbiased and dynamic product review articles and comparisons from global Amazon marketplaces.',
+  keywords: ['Bokasha reviews', 'Amazon product reviews', 'buying guides', 'top picks', 'best seller reviews', 'product comparisons'],
+  authors: [{ name: 'BOKASHA Team' }],
+  metadataBase: new URL('https://bokasha.com'), // Base URL for resolving relative links
+  openGraph: {
+    title: 'BOKASHA - Verified Product Reviews',
+    description: 'Dynamic product review articles and comparisons from global Amazon marketplaces.',
+    url: 'https://bokasha.com',
+    siteName: 'BOKASHA',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'BOKASHA - Product Reviews',
+    description: 'Dynamic product review articles from global Amazon marketplaces.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({ children }) {

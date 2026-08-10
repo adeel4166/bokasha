@@ -9,7 +9,7 @@ export default async function BlogHome({ searchParams }) {
   const searchQuery = searchParams?.q || '';
   const filterRegion = searchParams?.region || '';
   const filterCategory = searchParams?.category || '';
-  
+
   let databasePosts = [];
   try {
     let sql = 'SELECT title, slug, image_url, region, category, badge, content, created_at FROM posts WHERE status = "published"';
@@ -112,8 +112,8 @@ export default async function BlogHome({ searchParams }) {
 
   // Featured Posts for Carousel (top 4 latest posts) and Secondary Featured (Latest Additions)
   const carouselPosts = allPosts.slice(0, 4);
-  const secondaryFeatured = allPosts.length >= 7 
-    ? allPosts.slice(4, 7) 
+  const secondaryFeatured = allPosts.length >= 7
+    ? allPosts.slice(4, 7)
     : allPosts.filter(p => !carouselPosts.includes(p)).slice(0, 3);
 
   // Region lookup details for count badge
@@ -143,7 +143,7 @@ export default async function BlogHome({ searchParams }) {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070a13] text-slate-800 dark:text-slate-100 flex flex-col justify-between selection:bg-amber-500 selection:text-slate-900 transition-colors duration-200 relative">
-      
+
       {/* Glow backgrounds */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[300px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none"></div>
       <div className="absolute top-20 right-1/4 w-[600px] h-[300px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none"></div>
@@ -154,7 +154,7 @@ export default async function BlogHome({ searchParams }) {
           <Link href="/" className="text-2xl font-black text-slate-900 dark:text-white tracking-widest hover:opacity-90 transition">
             BOKASHA
           </Link>
-          
+
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
             {/* Search Input */}
             <form action="/" method="GET" className="relative w-full sm:w-80">
@@ -180,7 +180,7 @@ export default async function BlogHome({ searchParams }) {
         {/* 1. HERO FEATURED SECTION (Split design layout with dynamic sliding Carousel) */}
         {!searchQuery && !filterRegion && !filterCategory && carouselPosts.length > 0 && (
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            
+
             {/* Left Column: Horizontal Split Carousel */}
             <div className="lg:col-span-8">
               <HeroCarousel posts={carouselPosts} />
@@ -194,11 +194,11 @@ export default async function BlogHome({ searchParams }) {
                   Latest Additions
                 </h3>
               </div>
-              
+
               <div className="flex-1 grid grid-cols-1 gap-4">
                 {secondaryFeatured.map(post => (
-                  <div 
-                    key={post.slug} 
+                  <div
+                    key={post.slug}
                     className="bg-white dark:bg-[#0c0f1d]/40 border border-slate-200 dark:border-slate-850 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-800 transition flex gap-4 items-center group"
                   >
                     <div className="w-16 h-16 bg-white border border-slate-150 dark:border-slate-850/50 rounded-xl p-2 flex items-center justify-center flex-shrink-0">
@@ -234,14 +234,14 @@ export default async function BlogHome({ searchParams }) {
           </h3>
           <div className="relative max-w-xl mx-auto pt-2">
             <form action="/" method="GET" className="flex flex-col sm:flex-row shadow-lg sm:rounded-full rounded-2xl bg-white dark:bg-[#070a13] p-2 border border-emerald-500/30 dark:border-slate-800 gap-2 sm:gap-0">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="q"
                 defaultValue={searchQuery}
-                placeholder="Search products by title, region, or category..." 
+                placeholder="Search products by title, region, or category..."
                 className="flex-1 bg-transparent text-slate-900 dark:text-slate-100 border-none px-5 py-3 text-sm md:text-base focus:outline-none placeholder-slate-400 w-full rounded-xl sm:rounded-full"
               />
-              <button 
+              <button
                 type="submit"
                 className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs md:text-sm uppercase px-8 py-3.5 rounded-xl sm:rounded-full transition shadow-md hover:shadow-lg flex items-center justify-center gap-2"
               >
@@ -268,8 +268,8 @@ export default async function BlogHome({ searchParams }) {
               if (catPosts.length === 0) return null;
 
               return (
-                <div 
-                  key={catName} 
+                <div
+                  key={catName}
                   className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-slate-200 dark:border-slate-850/80 pb-10"
                 >
                   {/* Left Column: Category Label Card */}
@@ -280,7 +280,7 @@ export default async function BlogHome({ searchParams }) {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
                       Latest guides, hands-on picks, and dynamic product specs sheets.
                     </p>
-                    <Link 
+                    <Link
                       href={`/?category=${encodeURIComponent(catName)}`}
                       className="text-xs text-amber-500 font-bold hover:text-amber-400 transition mt-4 inline-flex items-center gap-1"
                     >
@@ -291,8 +291,8 @@ export default async function BlogHome({ searchParams }) {
                   {/* Right Column: Dynamic E-commerce Cards Grid */}
                   <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-3 gap-6">
                     {catPosts.slice(0, 3).map(post => (
-                      <article 
-                        key={post.slug} 
+                      <article
+                        key={post.slug}
                         className="bg-white dark:bg-[#0c0f1d]/40 rounded-2xl border border-slate-200 dark:border-slate-850 hover:border-slate-350 dark:hover:border-slate-750 overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group"
                       >
                         {/* Image Panel */}
@@ -364,19 +364,18 @@ export default async function BlogHome({ searchParams }) {
                 <Link
                   key={r.code}
                   href={`/?region=${r.code}`}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition border ${
-                    isActive 
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition border ${isActive
                       ? 'bg-emerald-600 border-emerald-700 text-white shadow-lg'
                       : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-300 hover:border-slate-350 dark:hover:border-slate-700'
-                  }`}
+                    }`}
                 >
                   {r.name} ({r.code})
                 </Link>
               );
             })}
             {(filterRegion || filterCategory || searchQuery) && (
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 className="px-4 py-2 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold hover:bg-rose-500/20 transition"
               >
                 Reset Filters ×
@@ -395,7 +394,7 @@ export default async function BlogHome({ searchParams }) {
               We turn complex product listings and descriptions into structured buying advice. Every article is written by our system analyzing real-time Amazon parameters to help shoppers compare options and shop with confidence.
             </p>
           </div>
-                  <div className="bg-white dark:bg-[#0c0f1d]/30 border border-slate-200 dark:border-slate-850 p-5 rounded-2xl text-center space-y-1 shadow-sm">
+          <div className="bg-white dark:bg-[#0c0f1d]/30 border border-slate-200 dark:border-slate-850 p-5 rounded-2xl text-center space-y-1 shadow-sm">
             <span className="text-2xl font-black text-amber-500 block">{databasePosts.length}</span>
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Active Reviews</span>
           </div>
@@ -420,7 +419,7 @@ export default async function BlogHome({ searchParams }) {
             <Link href="/disclaimer" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Disclaimer</Link>
             <Link href="/contact" className="hover:text-amber-600 hover:dark:text-amber-500 transition">Contact Us</Link>
             <span className="text-slate-300 dark:text-slate-800">|</span>
-            <Link href="/login" className="text-slate-500 hover:text-amber-600 hover:dark:text-amber-500 transition font-black">Writer Access</Link>
+
           </div>
           <p className="text-[10px] text-slate-400 dark:text-slate-600">&copy; {new Date().getFullYear()} BOKASHA. All rights reserved.</p>
         </div>

@@ -10,7 +10,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     throw new Error('GEMINI_API_KEY is not configured in the environment variables.');
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
   const bulletsText = bulletPoints.map(point => `- ${point}`).join('\n');
   const specsText = Object.entries(specifications)
@@ -76,7 +76,7 @@ export async function generateProductReview({ title, bulletPoints, specification
 
     const candidate = response.data?.candidates?.[0];
     const textContent = candidate?.content?.parts?.[0]?.text;
-    
+
     if (!textContent) {
       throw new Error('Received empty response from Gemini API.');
     }
@@ -85,29 +85,29 @@ export async function generateProductReview({ title, bulletPoints, specification
     const extractJson = (str) => {
       const start = str.indexOf('{');
       if (start === -1) return str;
-      
+
       let depth = 0;
       let inString = false;
       let escape = false;
-      
+
       for (let i = start; i < str.length; i++) {
         const char = str[i];
-        
+
         if (escape) {
           escape = false;
           continue;
         }
-        
+
         if (char === '\\') {
           escape = true;
           continue;
         }
-        
+
         if (char === '"') {
           inString = !inString;
           continue;
         }
-        
+
         if (!inString) {
           if (char === '{') {
             depth++;
@@ -124,7 +124,7 @@ export async function generateProductReview({ title, bulletPoints, specification
 
     // Parse the JSON structure
     const parsedData = JSON.parse(extractJson(textContent.trim()));
-    
+
     return {
       title: parsedData.title || title,
       category: parsedData.category || 'General',

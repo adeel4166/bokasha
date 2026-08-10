@@ -14,6 +14,60 @@ export async function generateStaticParams() {
   }
 }
 
+export async function generateMetadata({ params }) {
+  const { slug } = params;
+  let post = null;
+
+  try {
+    const results = await query('SELECT title, content, image_url, category FROM posts WHERE slug = ?', [slug]);
+    if (results.length > 0) {
+      post = results[0];
+    }
+  } catch (error) {
+    console.error('Failed fetching post metadata:', error);
+  }
+
+  if (!post) {
+    return { title: 'Post Not Found | BOKASHA' };
+  }
+
+  // Extract display title (if wrapped in h1 tag)
+  let displayTitle = post.title;
+  const h1Match = post.content.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  if (h1Match) {
+    displayTitle = h1Match[1];
+  }
+
+  // Extract plain text excerpt for description
+  let excerpt = post.content.replace(/<[^>]*>/g, ' ').substring(0, 160).trim();
+  if (excerpt.length >= 160) excerpt += '...';
+
+  return {
+    title: `${displayTitle} | BOKASHA`,
+    description: excerpt,
+    keywords: [post.category, 'Amazon review', 'buy on Amazon', displayTitle.substring(0, 20)],
+    openGraph: {
+      title: displayTitle,
+      description: excerpt,
+      images: [
+        {
+          url: post.image_url,
+          width: 800,
+          height: 600,
+          alt: displayTitle,
+        },
+      ],
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: displayTitle,
+      description: excerpt,
+      images: [post.image_url],
+    },
+  };
+}
+
 export default async function PostDetailPage({ params }) {
   const { slug } = params;
   let post = null;
