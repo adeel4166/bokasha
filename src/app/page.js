@@ -1,6 +1,7 @@
 import { query } from '@/lib/db';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
+import FilterSelect from '@/components/FilterSelect';
 
 export const revalidate = 60;
 
@@ -163,30 +164,19 @@ export default async function BlogHome({ searchParams }) {
             </form>
 
             <div className="flex gap-4 w-full md:w-auto">
-              <select 
-                className="w-full md:w-48 bg-white dark:bg-[#13192b] border border-slate-200 dark:border-slate-800 rounded-md px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 focus:outline-none shadow-sm appearance-none cursor-pointer"
-                onChange={(e) => {
-                  if (typeof window !== 'undefined') {
-                    window.location.href = `/?category=${encodeURIComponent(e.target.value)}`;
-                  }
-                }}
-              >
-                <option value="">Categories...</option>
-                {categoriesList.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <FilterSelect 
+                name="category"
+                placeholder="Categories..."
+                defaultValue={filterCategory}
+                options={categoriesList.map(c => ({ value: c, label: c }))}
+              />
 
-              <select 
-                className="w-full md:w-48 bg-white dark:bg-[#13192b] border border-slate-200 dark:border-slate-800 rounded-md px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 focus:outline-none shadow-sm appearance-none cursor-pointer"
-                onChange={(e) => {
-                  if (typeof window !== 'undefined') {
-                    window.location.href = `/?region=${e.target.value}`;
-                  }
-                }}
+              <FilterSelect 
+                name="region"
+                placeholder="Filter by country"
                 defaultValue={filterRegion}
-              >
-                <option value="">Filter by country</option>
-                {regions.map(r => <option key={r.code} value={r.code}>{r.name}</option>)}
-              </select>
+                options={regions.map(r => ({ value: r.code, label: r.name }))}
+              />
             </div>
           </div>
           
