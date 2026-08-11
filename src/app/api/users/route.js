@@ -27,7 +27,7 @@ export async function GET(req) {
 
   try {
     // Get all users
-    const users = await query('SELECT id, username, role, article_quota, used_quota, created_at FROM users WHERE role != "admin"');
+    const users = await query('SELECT id, username, role, article_quota, used_quota, created_at FROM users');
     
     // Fetch tracking IDs for each user
     const usersWithIds = await Promise.all(users.map(async (user) => {
@@ -157,7 +157,7 @@ export async function DELETE(req) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    await query('DELETE FROM users WHERE id = ?', [id]);
+    await query('DELETE FROM users WHERE id = ? AND role != "admin"', [id]);
     return NextResponse.json({ success: true, message: 'User deleted successfully' });
 
   } catch (error) {
