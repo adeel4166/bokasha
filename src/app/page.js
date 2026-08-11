@@ -131,14 +131,28 @@ export default async function BlogHome({ searchParams }) {
           {allPosts.length > 0 ? (
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {allPosts.map((post) => (
-                <div key={post.slug} className="group flex flex-col items-center text-center bg-white dark:bg-[#0b0f19] border border-slate-100 dark:border-slate-800/60 hover:border-fuchsia-200 dark:hover:border-fuchsia-900/50 rounded-xl p-4 transition-all hover:shadow-md">
+                <div key={post.slug} className="group relative flex flex-col bg-white dark:bg-[#0b0f19] border border-slate-100 dark:border-slate-800/60 hover:border-fuchsia-200 dark:hover:border-fuchsia-900/50 rounded-xl transition-all hover:shadow-md overflow-hidden">
                   
-                  <Link href={`/post/${post.slug}`} className="w-full flex items-center justify-center aspect-square mb-4 transition transform group-hover:scale-105 duration-300">
+                  {/* Absolute Badges */}
+                  <div className="absolute top-2 left-2 z-10">
+                    <span className="bg-fuchsia-600 text-white text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded shadow-sm">
+                      {post.region}
+                    </span>
+                  </div>
+                  {post.badge && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <span className="bg-amber-400 text-amber-950 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded shadow-sm">
+                        {post.badge}
+                      </span>
+                    </div>
+                  )}
+
+                  <Link href={`/post/${post.slug}`} className="w-full h-48 bg-white flex items-center justify-center p-4 transition transform group-hover:scale-105 duration-300">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={post.image_url} alt={post.title} className="w-full h-full object-contain filter drop-shadow-sm" />
                   </Link>
 
-                  <div className="flex flex-col flex-1 justify-between w-full space-y-4">
+                  <div className="flex flex-col flex-1 justify-between w-full p-4 space-y-4">
                     <Link href={`/post/${post.slug}`}>
                       <h3 className="text-[13px] md:text-sm font-bold text-slate-700 dark:text-slate-200 line-clamp-2 leading-snug group-hover:text-fuchsia-700 dark:group-hover:text-fuchsia-400 transition-colors">
                         {post.title}
@@ -147,7 +161,7 @@ export default async function BlogHome({ searchParams }) {
 
                     <Link 
                       href={`/post/${post.slug}`}
-                      className="w-full bg-slate-50 hover:bg-fuchsia-700 dark:bg-slate-800 dark:hover:bg-fuchsia-700 text-slate-600 hover:text-white dark:text-slate-300 font-semibold text-xs py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
+                      className="w-full bg-slate-50 hover:bg-fuchsia-700 dark:bg-slate-800 dark:hover:bg-fuchsia-700 text-slate-600 hover:text-white dark:text-slate-300 font-semibold text-xs py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-2 mt-auto"
                     >
                       View Product
                     </Link>

@@ -11,6 +11,9 @@ export const metadata = {
   keywords: ['Bokasha reviews', 'Amazon product reviews', 'buying guides', 'top picks', 'best seller reviews', 'product comparisons'],
   authors: [{ name: 'BOKASHA Team' }],
   metadataBase: new URL('https://bokasha.com'), // Base URL for resolving relative links
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'BOKASHA - Verified Product Reviews',
     description: 'Dynamic product review articles and comparisons from global Amazon marketplaces.',

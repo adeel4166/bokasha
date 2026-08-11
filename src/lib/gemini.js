@@ -40,6 +40,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     - DO NOT include the <h1> title in the "content" field (it is already stored separately in "title").
     - DO NOT include the final "Check Price on Amazon" affiliate link/button in the "content" field (the website template renders this automatically).
     - DO NOT list static prices or exact price numbers.
+    - If the provided product description or technical details are empty, write a general lifestyle review and DO NOT invent or hallucinate fake technical specifications.
     - Output ONLY valid, clean JSON. Do not wrap the JSON output in markdown blocks like "\`\`\`json".
   `;
 
@@ -54,86 +55,61 @@ export async function generateProductReview({ title, bulletPoints, specification
     ${specsText}
   `;
 
-  try {
-    const response = await axios.post(endpoint, {
-      contents: [{
-        parts: [{
-          text: `${systemInstructions}\n\nUser Data:\n${promptContent}`
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 8192, // Increase limit to prevent truncating JSON strings
-        responseMimeType: "application/json" // Enforce JSON Output
-      }
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+  const attemptGeneration = async (retries = 2) => {
+    try {
+      const response = await axios.post(endpoint, {
+        contents: [{
+          parts: [{
+            text: `${systemInstructions}\n\nUser Data:\n${promptContent}`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 8192,
+          responseMimeType: "application/json"
+        }
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-    const candidate = response.data?.candidates?.[0];
-    const textContent = candidate?.content?.parts?.[0]?.text;
+      const candidate = response.data?.candidates?.[0];
+      const textContent = candidate?.content?.parts?.[0]?.text;
 
-    if (!textContent) {
-      throw new Error('Received empty response from Gemini API.');
+      if (!textContent) {
+        throw new Error('Received empty response from Gemini API.');
+      }
+
+      // Since responseMimeType is application/json, it should be pure JSON.
+      // Just in case it adds markdown, we strip it.
+      let cleanText = textContent.trim();
+      if (cleanText.startsWith('```json')) {
+        cleanText = cleanText.replace(/^```json/, '').replace(/```$/, '').trim();
+      } else if (cleanText.startsWith('```')) {
+        cleanText = cleanText.replace(/^```/, '').replace(/```$/, '').trim();
+      }
+
+      const parsedData = JSON.parse(cleanText);
+
+      return {
+        title: parsedData.title || title,
+        category: parsedData.category || 'General',
+        badge: parsedData.badge || "Editor's Choice",
+        content: parsedData.content
+      };
+
+    } catch (error) {
+      if (retries > 0) {
+        console.warn(`Gemini generation failed, retrying... (${retries} retries left)`);
+        return await attemptGeneration(retries - 1);
+      }
+      console.error('Gemini content generation failed after retries:', error.response?.data || error.message);
+      throw new Error(`AI Content generation failed: ${error.message}`);
     }
+  };
 
-    // Helper to extract the first complete valid JSON block by counting braces
-    const extractJson = (str) => {
-      const start = str.indexOf('{');
-      if (start === -1) return str;
-
-      let depth = 0;
-      let inString = false;
-      let escape = false;
-
-      for (let i = start; i < str.length; i++) {
-        const char = str[i];
-
-        if (escape) {
-          escape = false;
-          continue;
-        }
-
-        if (char === '\\') {
-          escape = true;
-          continue;
-        }
-
-        if (char === '"') {
-          inString = !inString;
-          continue;
-        }
-
-        if (!inString) {
-          if (char === '{') {
-            depth++;
-          } else if (char === '}') {
-            depth--;
-            if (depth === 0) {
-              return str.substring(start, i + 1);
-            }
-          }
-        }
-      }
-      return str;
-    };
-
-    // Parse the JSON structure
-    const parsedData = JSON.parse(extractJson(textContent.trim()));
-
-    return {
-      title: parsedData.title || title,
-      category: parsedData.category || 'General',
-      badge: parsedData.badge || "Editor's Choice",
-      content: parsedData.content
-    };
-
-  } catch (error) {
-    console.error('Gemini content generation failed:', error.response?.data || error.message);
-    throw new Error(`AI Content generation failed: ${error.message}`);
-  }
+  return await attemptGeneration();
 }

@@ -34,10 +34,51 @@ export async function POST(req) {
     }
 
     const cleanRegion = region.toUpperCase();
-    const asin = extractAsin(asinOrUrl);
+    let finalUrl = asinOrUrl.trim();
+    if (finalUrl.includes('amzn.to/') || finalUrl.includes('a.co/')) {
+      try {
+        const res = await fetch(finalUrl, { method: 'GET', redirect: 'follow' });
+        finalUrl = res.url || finalUrl;
+      } catch (err) {
+        console.warn('Failed to resolve short URL:', err.message);
+      }
+    }
+
+    let asin = extractAsin(finalUrl);
+
+    // If it's a general URL (not amazon) and we haven't found an ASIN yet, try to scrape it
+    if (!asin && finalUrl.startsWith('http') && !finalUrl.includes('amazon.')) {
+      try {
+        console.log('Attempting to scrape external URL for Amazon links:', finalUrl);
+        const pageRes = await fetch(finalUrl, { 
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+        const html = await pageRes.text();
+        
+        // 1. Try to find amzn.to or a.co links in the HTML
+        const shortLinkMatch = html.match(/https?:\/\/(?:www\.)?(?:amzn\.to|a\.co)\/[a-zA-Z0-9]+/i);
+        if (shortLinkMatch) {
+          const res = await fetch(shortLinkMatch[0], { method: 'GET', redirect: 'follow' });
+          asin = extractAsin(res.url);
+        }
+        
+        // 2. Try to find full Amazon links in the HTML
+        if (!asin) {
+          const amazonLinkMatch = html.match(/(?:amazon\.[a-z\.]+\/(?:.*\/)?(?:dp|gp\/product)\/)([A-Z0-9]{10})/i);
+          if (amazonLinkMatch) {
+            asin = amazonLinkMatch[1].toUpperCase();
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to scrape external URL:', err.message);
+      }
+    }
 
     if (!asin) {
-      return NextResponse.json({ error: 'Could not extract a valid Amazon ASIN from your input.' }, { status: 400 });
+      return NextResponse.json({ error: 'Could not extract a valid Amazon ASIN from your input or the provided webpage.' }, { status: 400 });
     }
 
     // 1. Quota check
@@ -99,7 +140,9 @@ export async function POST(req) {
     let baseSlug = generatedReview.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 80)
+      .replace(/-+$/, '');
     
     // Fallback if title has non-latin characters only
     if (!baseSlug) {

@@ -90,11 +90,13 @@ export async function GET(req) {
     }
 
     const trackingIds = await query('SELECT region, tracking_id FROM user_tracking_ids WHERE user_id = ?', [decoded.id]);
+    const postsCount = await query('SELECT COUNT(*) as count FROM posts WHERE user_id = ? AND status = "published"', [decoded.id]);
     
     return NextResponse.json({
       authenticated: true,
       user: {
         ...users[0],
+        total_posts: postsCount[0]?.count || 0,
         trackingIds: trackingIds
       }
     });

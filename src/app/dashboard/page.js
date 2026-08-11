@@ -141,7 +141,7 @@ export default function WriterDashboard() {
 
   const handleCopy = () => {
     if (!result) return;
-    const link = `${window.location.origin}/post/${result.slug}`;
+    const link = `${window.location.origin}/post/${result.slug}?ref=${user.username}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -220,7 +220,23 @@ export default function WriterDashboard() {
           </p>
         </div>
 
-        <form onSubmit={handleGenerate} className="space-y-5 pt-4">
+        {/* Analytics Cards */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-fuchsia-50 dark:bg-fuchsia-900/20 border border-fuchsia-100 dark:border-fuchsia-800/30 rounded-xl p-3 text-center">
+            <span className="block text-[10px] text-fuchsia-600 dark:text-fuchsia-400 font-bold uppercase tracking-widest mb-1">Total Posts</span>
+            <span className="block text-xl font-black text-fuchsia-900 dark:text-fuchsia-100">{user.total_posts || 0}</span>
+          </div>
+          <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-800/30 rounded-xl p-3 text-center">
+            <span className="block text-[10px] text-sky-600 dark:text-sky-400 font-bold uppercase tracking-widest mb-1">Generated</span>
+            <span className="block text-xl font-black text-sky-900 dark:text-sky-100">{user.used_quota || 0}</span>
+          </div>
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 rounded-xl p-3 text-center">
+            <span className="block text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest mb-1">Available</span>
+            <span className="block text-xl font-black text-emerald-900 dark:text-emerald-100">{Math.max(0, (user.article_quota || 0) - (user.used_quota || 0))}</span>
+          </div>
+        </div>
+
+        <form onSubmit={handleGenerate} className="space-y-5">
           
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">
@@ -276,7 +292,7 @@ export default function WriterDashboard() {
                   <button
                     type="button"
                     onClick={() => {
-                      const link = `${window.location.origin}/post/${duplicateSlug}`;
+                      const link = `${window.location.origin}/post/${duplicateSlug}?ref=${user.username}`;
                       navigator.clipboard.writeText(link);
                       setDupCopied(true);
                       setTimeout(() => setDupCopied(false), 2000);
@@ -286,7 +302,7 @@ export default function WriterDashboard() {
                     {dupCopied ? 'Copied! ✓' : 'Copy Link'}
                   </button>
                   <a
-                    href={`/post/${duplicateSlug}`}
+                    href={`/post/${duplicateSlug}?ref=${user.username}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 sm:flex-none text-center bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md font-bold text-[11px] transition"
@@ -310,7 +326,7 @@ export default function WriterDashboard() {
                   {copied ? 'Copied! ✓' : 'Copy Link'}
                 </button>
                 <a
-                  href={`/post/${result.slug}`}
+                  href={`/post/${result.slug}?ref=${user.username}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 sm:flex-none text-center bg-fuchsia-700 hover:bg-fuchsia-800 text-white px-3 py-1.5 rounded-md font-bold text-[11px] transition"
@@ -321,26 +337,30 @@ export default function WriterDashboard() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-fuchsia-700 hover:bg-fuchsia-800 text-white font-bold text-sm py-4 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-75 disabled:cursor-not-allowed mt-4"
-          >
-            {loading ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                <span>Generating Review... {timerSeconds}s elapsed</span>
-              </>
-            ) : (
-              'Generate & Auto Post'
-            )}
-          </button>
+          {loading ? (
+            <div className="w-full mt-4 bg-slate-100 dark:bg-[#0b0f19] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 relative h-14 flex items-center justify-center">
+              <div 
+                className="absolute top-0 left-0 h-full bg-fuchsia-600 transition-all duration-1000 ease-linear opacity-20"
+                style={{ width: `${Math.min((timerSeconds / 20) * 100, 95)}%` }}
+              ></div>
+              <span className="relative z-10 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                <span className="w-3 h-3 border-2 border-fuchsia-600 border-t-transparent rounded-full animate-spin"></span>
+                {timerSeconds < 5 ? 'Scraping Amazon data...' 
+                 : timerSeconds < 10 ? 'AI is writing the magic...' 
+                 : timerSeconds < 15 ? 'Formatting article...' 
+                 : 'Saving your article...'} ({timerSeconds}s)
+              </span>
+            </div>
+          ) : (
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-fuchsia-700 hover:bg-fuchsia-800 text-white font-bold text-sm py-4 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-3 mt-4"
+            >
+              Generate & Auto Post
+            </button>
+          )}
         </form>
-
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          <span>Monthly Quota:</span>
-          <span>{user.used_quota} / {user.article_quota} Articles</span>
-        </div>
 
       </div>
     </div>
