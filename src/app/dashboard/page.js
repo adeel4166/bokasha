@@ -221,7 +221,7 @@ export default function WriterDashboard() {
         </div>
 
         {/* Analytics Cards */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="bg-fuchsia-50 dark:bg-fuchsia-900/20 border border-fuchsia-100 dark:border-fuchsia-800/30 rounded-xl p-3 text-center">
             <span className="block text-[10px] text-fuchsia-600 dark:text-fuchsia-400 font-bold uppercase tracking-widest mb-1">Total Posts</span>
             <span className="block text-xl font-black text-fuchsia-900 dark:text-fuchsia-100">{user.total_posts || 0}</span>

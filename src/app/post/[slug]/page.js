@@ -184,35 +184,50 @@ export default async function PostDetailPage({ params, searchParams }) {
       <main className="max-w-5xl mx-auto w-full px-6 py-12 flex-1 animate-fadeIn">
         
         {/* Product Details Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start mb-16">
+        <section className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-start mb-16">
           
-          {/* Left Column: Product Image */}
-          <div className="flex flex-col items-center w-full mb-8 lg:mb-0">
+          {/* Left Column: Product Image (Sticky) */}
+          <div className="w-full lg:w-5/12 lg:sticky lg:top-24 mb-8 lg:mb-0">
             {post.image_url && (
-              <div className="w-full bg-white dark:bg-[#13192b] border border-slate-100 dark:border-slate-800 rounded-xl p-8 flex items-center justify-center aspect-square shadow-sm">
+              <div className="w-full bg-white dark:bg-[#0b0f19] border border-slate-100 dark:border-slate-800/60 rounded-3xl p-8 sm:p-12 flex items-center justify-center aspect-square shadow-sm transition-all hover:shadow-md group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={post.image_url} 
                   alt={post.title} 
-                  className="w-full h-full object-contain filter drop-shadow-sm transition transform hover:scale-105 duration-300"
+                  className="w-full h-full object-contain filter drop-shadow-sm transition transform group-hover:scale-105 duration-500"
                 />
               </div>
             )}
+            
+            {/* Desktop Action Area Below Image */}
+            <div className="mt-8 hidden lg:block text-center">
+               <a 
+                href={affiliateUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-amber-950 font-black text-sm py-4 px-8 rounded-xl transition-all duration-300 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:-translate-y-0.5"
+              >
+                <span className="flex-1">Check Price on Amazon</span>
+                <span className="text-lg leading-none">&rarr;</span>
+              </a>
+              <p className="text-[11px] text-slate-500 font-medium mt-3">Redirects to Amazon {post.region} store</p>
+              <p className="text-[10px] text-slate-400 mt-1 italic">We earn a commission if you make a purchase, at no additional cost to you.</p>
+            </div>
           </div>
 
           {/* Right Column: Title Info Metadata Grid */}
-          <div className="space-y-6 pt-4">
+          <div className="w-full lg:w-7/12 space-y-6 lg:pt-4">
             
             {/* Meta Tags / Badges */}
             <div className="flex flex-wrap items-center gap-3">
-              <span className="bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded">
+              <span className="bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-300 border border-fuchsia-200 dark:border-fuchsia-800 text-[10px] uppercase font-black tracking-widest px-3 py-1 rounded-md">
                 {post.region} Store
               </span>
-              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded">
+              <span className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-md">
                 {post.category || 'General'}
               </span>
-              <span className="text-slate-300 dark:text-slate-700 text-xs font-mono">|</span>
-              <span className="text-slate-400 dark:text-slate-500 text-xs font-mono">
+              <span className="text-slate-300 dark:text-slate-700 text-xs font-mono hidden sm:inline">|</span>
+              <span className="text-slate-400 dark:text-slate-500 text-[11px] font-medium">
                 Updated {(() => {
                   const d = new Date(post.created_at);
                   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -222,23 +237,22 @@ export default async function PostDetailPage({ params, searchParams }) {
             </div>
 
             {/* Product Title */}
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
               {displayTitle}
             </h1>
 
-            {/* Affiliate Button */}
-            <div className="pt-2">
+            {/* Mobile Action Area */}
+            <div className="pt-2 block lg:hidden">
               <a 
                 href={affiliateUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-fuchsia-700 hover:bg-fuchsia-800 text-white font-semibold text-sm py-4 px-8 rounded-md transition shadow-md"
+                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-amber-950 font-black text-sm py-4 px-8 rounded-xl transition-all duration-300 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 active:scale-[0.98]"
               >
                 <span>Check Price on Amazon</span>
-                <span className="text-lg leading-none">&rarr;</span>
+                <span className="text-lg leading-none ml-2">&rarr;</span>
               </a>
-              <p className="text-[11px] text-slate-500 font-medium mt-2">Redirects to Amazon {post.region} store</p>
-              <p className="text-[10px] text-slate-400 mt-1 italic">We earn a commission if you make a purchase, at no additional cost to you.</p>
+              <p className="text-[11px] text-slate-500 font-medium mt-2 text-center">Redirects to Amazon {post.region} store</p>
             </div>
             
             <div className="border-t border-slate-100 dark:border-slate-800/80 my-8"></div>
@@ -259,7 +273,7 @@ export default async function PostDetailPage({ params, searchParams }) {
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">You May Also Like</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedPosts.map(rp => (
-                <div key={rp.slug} className="group relative flex flex-col bg-white dark:bg-[#0b0f19] border border-slate-100 dark:border-slate-800/60 hover:border-fuchsia-200 dark:hover:border-fuchsia-900/50 rounded-xl transition-all hover:shadow-md overflow-hidden">
+                <div key={rp.slug} className="group relative flex flex-col bg-white dark:bg-[#0b0f19] border border-slate-100 dark:border-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl transition-all duration-300 hover:shadow-lg overflow-hidden">
                   <div className="absolute top-2 left-2 z-10">
                     <span className="bg-fuchsia-600 text-white text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded shadow-sm">
                       {rp.region}
@@ -282,7 +296,7 @@ export default async function PostDetailPage({ params, searchParams }) {
                         {rp.title}
                       </h3>
                     </Link>
-                    <Link href={`/post/${rp.slug}`} className="w-full bg-slate-50 hover:bg-fuchsia-700 dark:bg-slate-800 dark:hover:bg-fuchsia-700 text-slate-600 hover:text-white dark:text-slate-300 font-semibold text-xs py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2 mt-auto">
+                    <Link href={`/post/${rp.slug}`} className="w-full bg-slate-50 hover:bg-slate-900 dark:bg-slate-800 dark:hover:bg-white text-slate-600 hover:text-white dark:text-slate-300 dark:hover:text-slate-900 font-bold text-xs py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 mt-auto">
                       Read Review
                     </Link>
                   </div>
