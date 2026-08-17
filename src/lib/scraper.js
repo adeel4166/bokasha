@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { ApiClient, DefaultApi, GetItemsRequestContent } from '@amzn/creatorsapi-nodejs-sdk';
 
 /**
  * Normalizes Amazon ASIN or direct URL into a clean Amazon product URL.
@@ -54,11 +55,88 @@ export function extractAsin(input) {
 }
 
 /**
+ * Fetches product details using Amazon Creators API (Specifically for France for now)
+ */
+async function fetchFromCreatorsApi(asin, region) {
+  console.log(`Using Amazon Creators API for ASIN: ${asin} (Region: ${region})`);
+  
+  const credentialId = process.env.FR_AMAZON_CREDENTIAL_ID;
+  const credentialSecret = process.env.FR_AMAZON_CREDENTIAL_SECRET;
+  const version = process.env.FR_AMAZON_CREDENTIAL_VERSION || '3.2';
+  const partnerTag = process.env.FR_AMAZON_PARTNER_TAG;
+
+  if (!credentialId || !credentialSecret || credentialId === 'your_credential_id_here') {
+    throw new Error('FR_AMAZON_CREDENTIAL_ID or FR_AMAZON_CREDENTIAL_SECRET is not configured.');
+  }
+
+  const apiClient = new ApiClient();
+  apiClient.credentialId = credentialId;
+  apiClient.credentialSecret = credentialSecret;
+  apiClient.version = version;
+
+  const api = new DefaultApi(apiClient);
+
+  const getItemsRequest = new GetItemsRequestContent();
+  getItemsRequest.partnerTag = partnerTag;
+  getItemsRequest.itemIds = [asin];
+  getItemsRequest.resources = [
+    'images.primary.large',
+    'itemInfo.title',
+    'itemInfo.features'
+  ];
+
+  const marketplace = 'www.amazon.fr';
+
+  try {
+    const response = await api.getItems(marketplace, getItemsRequest);
+    
+    // Parse response
+    const item = response?.itemsResult?.items?.[0];
+    if (!item) {
+      throw new Error(`Item ${asin} not found in Creators API response.`);
+    }
+
+    const title = item.itemInfo?.title?.displayValue || 'Amazon Product';
+    const imageUrl = item.images?.primary?.large?.url || '';
+    const bulletPoints = item.itemInfo?.features?.displayValues || [];
+    const specifications = {}; // API doesn't always expose full specs, Gemini will handle this gracefully.
+
+    return {
+      asin,
+      url: `https://${marketplace}/dp/${asin}`,
+      title,
+      imageUrl,
+      bulletPoints,
+      specifications,
+      rawHtmlPreview: 'Fetched securely via official Amazon Creators API.'
+    };
+  } catch (error) {
+    console.error('Creators API error:', error?.response?.body || error.message);
+    throw error;
+  }
+}
+
+/**
  * Scrapes product details from Amazon URL.
  */
 export async function scrapeAmazonProduct(inputUrl, region = 'US') {
   const url = getAmazonUrl(inputUrl, region);
   const asin = extractAsin(url) || 'UNKNOWN';
+
+  // --- NEW LOGIC: Use Creators API for FR ---
+  if (region.toUpperCase() === 'FR') {
+    try {
+      if (process.env.FR_AMAZON_CREDENTIAL_ID && process.env.FR_AMAZON_CREDENTIAL_ID !== 'your_credential_id_here') {
+        const apiData = await fetchFromCreatorsApi(asin, 'FR');
+        return apiData;
+      } else {
+        console.warn('France region selected but Creators API keys are missing. Falling back to scraper...');
+      }
+    } catch (apiError) {
+      console.warn('Creators API failed. Falling back to scraper...', apiError.message);
+    }
+  }
+  // --- END NEW LOGIC ---
 
   try {
     let response;

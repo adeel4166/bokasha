@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@amzn/creatorsapi-nodejs-sdk": "file:src/lib/creatorsapi-nodejs-sdk",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.12",
