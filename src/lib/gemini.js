@@ -10,7 +10,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     throw new Error('GEMINI_API_KEY is not configured in the environment variables.');
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
   const bulletsText = bulletPoints.map(point => `- ${point}`).join('\n');
   const specsText = Object.entries(specifications)
