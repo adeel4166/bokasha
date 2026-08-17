@@ -46,8 +46,8 @@ export default async function BlogHome({ searchParams }) {
     const countResult = await query(countSql, params);
     totalPosts = countResult[0].total;
 
-    const sql = `SELECT title, slug, image_url, region, category, badge, content, created_at FROM posts ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
-    databasePosts = await query(sql, [...params, limit, offset]);
+    const sql = `SELECT title, slug, image_url, region, category, badge, content, created_at FROM posts ${whereClause} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+    databasePosts = await query(sql, params);
   } catch (error) {
     console.error('Failed to load posts from database:', error);
   }
