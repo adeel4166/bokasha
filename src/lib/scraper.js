@@ -123,20 +123,19 @@ export async function scrapeAmazonProduct(inputUrl, region = 'US') {
   const url = getAmazonUrl(inputUrl, region);
   const asin = extractAsin(url) || 'UNKNOWN';
 
-  // --- NEW LOGIC: Use Creators API for FR ---
+  // --- NEW LOGIC: Try Creators API for FR first, fallback to scraper if it fails ---
   if (region.toUpperCase() === 'FR') {
     try {
       if (process.env.FR_AMAZON_CREDENTIAL_ID && process.env.FR_AMAZON_CREDENTIAL_ID !== 'your_credential_id_here') {
         console.log('Using France Creators API for ASIN:', asin);
         const apiData = await fetchFromCreatorsApi(asin, 'FR');
-        return apiData;
+        return apiData; // Return immediately if API succeeds
       } else {
         console.warn('France region selected but Creators API keys are missing. Falling back to scraper...');
       }
     } catch (apiError) {
-      console.error('Creators API Request Failed:', apiError.message);
-      // We throw the error so it instantly shows on the frontend instead of taking 60s and timing out
-      throw new Error(`Amazon API Error: ${apiError.message}. Please check your credentials or wait 48 hours for approval.`);
+      console.warn(`Creators API Request Failed (${apiError.message || 'Unknown Error'}). Falling back to scraper...`);
+      // We don't throw the error here anymore, we let it continue to the scraper logic below
     }
   }
   // --- END NEW LOGIC ---
