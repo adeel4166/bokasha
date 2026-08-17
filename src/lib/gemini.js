@@ -10,7 +10,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     throw new Error('GEMINI_API_KEY is not configured in the environment variables.');
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   const bulletsText = bulletPoints.map(point => `- ${point}`).join('\n');
   const specsText = Object.entries(specifications)
@@ -21,7 +21,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     You are an expert SEO content copywriter. Write a comprehensive, professional, and engaging product review article for a website named "BOKASHA".
     The target region/market is: ${region}.
     
-    CRITICAL: Keep the review concise, punchy, and highly informative. Total review content length should be around 600 - 800 words. Focus on key purchasing details without wordy filler to ensure fast loading and high conversion.
+    CRITICAL: Keep the review concise, punchy, and highly informative. Total review content length should be around 400 - 500 words. Focus on key purchasing details without wordy filler to ensure fast loading and high conversion.
     
     You must output a JSON object containing exactly these fields:
     1. "title": A catchy, vibrant, SEO-optimized title containing the product name.
