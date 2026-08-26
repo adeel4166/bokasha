@@ -64,7 +64,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     const groqEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
     
     const response = await axios.post(groqEndpoint, {
-      model: "llama3-70b-8192", // Using Llama 3 70B for best reasoning and JSON quality
+      model: "llama-3.1-70b-versatile", // Updated to the latest Llama 3.1 model
       messages: [
         { role: "system", content: systemInstructions },
         { role: "user", content: "User Data:\n" + promptContent }
@@ -145,8 +145,9 @@ export async function generateProductReview({ title, bulletPoints, specification
       try {
         return await attemptGroqGeneration();
       } catch (groqError) {
+        const groqDetailedError = groqError.response?.data?.error?.message || groqError.message;
         console.error('Groq fallback also failed:', groqError.response?.data || groqError.message);
-        throw new Error(`AI Content generation failed. Gemini Error: ${error.message} | Groq Error: ${groqError.message}`);
+        throw new Error(`AI Content generation failed. Gemini Error: ${error.message} | Groq Error: ${groqDetailedError}`);
       }
     }
   };
