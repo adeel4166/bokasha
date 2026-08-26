@@ -65,34 +65,67 @@ export async function generateProductReview({ title, bulletPoints, specification
 
     const groqEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
     
-    const response = await axios.post(groqEndpoint, {
-      model: "llama-4-scout-17b-16e-instruct", // Updated to the latest Llama 4 lightweight model
-      messages: [
-        { role: "system", content: systemInstructions },
-        { role: "user", content: "User Data:\n" + promptContent }
-      ],
-      temperature: 0.7,
-      max_tokens: 4096,
-      response_format: { type: "json_object" }
-    }, {
-      headers: {
-        'Authorization': `Bearer ${groqKey}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    // Primary Groq Model
+    try {
+      console.log('Attempting Groq generation with llama-3.1-8b-instant...');
+      const response = await axios.post(groqEndpoint, {
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: systemInstructions },
+          { role: "user", content: "User Data:\n" + promptContent }
+        ],
+        temperature: 0.7,
+        max_tokens: 4096,
+        response_format: { type: "json_object" }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${groqKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    const textContent = response.data?.choices?.[0]?.message?.content;
-    if (!textContent) {
-      throw new Error('Received empty response from Groq API.');
+      const textContent = response.data?.choices?.[0]?.message?.content;
+      if (!textContent) throw new Error('Received empty response from Groq API.');
+
+      const parsedData = JSON.parse(textContent);
+      return {
+        title: parsedData.title || title,
+        category: parsedData.category || 'General',
+        badge: parsedData.badge || "Editor's Choice",
+        content: parsedData.content
+      };
+
+    } catch (primaryError) {
+      console.warn(`Groq primary model failed: ${primaryError.response?.data?.error?.message || primaryError.message}. Switching to secondary Groq model...`);
+      
+      // Secondary Groq Model
+      const response = await axios.post(groqEndpoint, {
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: systemInstructions },
+          { role: "user", content: "User Data:\n" + promptContent }
+        ],
+        temperature: 0.7,
+        max_tokens: 4096,
+        response_format: { type: "json_object" }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${groqKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const textContent = response.data?.choices?.[0]?.message?.content;
+      if (!textContent) throw new Error('Received empty response from Groq API.');
+
+      const parsedData = JSON.parse(textContent);
+      return {
+        title: parsedData.title || title,
+        category: parsedData.category || 'General',
+        badge: parsedData.badge || "Editor's Choice",
+        content: parsedData.content
+      };
     }
-
-    const parsedData = JSON.parse(textContent);
-    return {
-      title: parsedData.title || title,
-      category: parsedData.category || 'General',
-      badge: parsedData.badge || "Editor's Choice",
-      content: parsedData.content
-    };
   };
 
   const attemptGeneration = async () => {
@@ -168,7 +201,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     } catch (groqError) {
       const groqDetailedError = groqError.response?.data?.error?.message || groqError.message;
       console.error('Groq fallback also failed:', groqError.response?.data || groqError.message);
-      throw new Error(`AI Content generation failed. Gemini Error: ${geminiError?.message} | Groq (llama-4-scout-17b-16e-instruct) Error: ${groqDetailedError}`);
+      throw new Error(`AI Content generation failed. Gemini Error: ${geminiError?.message} | Groq Error: ${groqDetailedError}`);
     }
   };
 
