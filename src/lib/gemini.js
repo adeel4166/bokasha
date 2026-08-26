@@ -64,7 +64,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     const groqEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
     
     const response = await axios.post(groqEndpoint, {
-      model: "llama-3.3-70b-versatile", // Updated to the latest Llama 3.3 model
+      model: "llama-3.1-8b-instant", // Downgraded to 8b-instant because 70b was returning 404 for the user's API key
       messages: [
         { role: "system", content: systemInstructions },
         { role: "user", content: "User Data:\n" + promptContent }
