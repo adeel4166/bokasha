@@ -67,9 +67,9 @@ export async function generateProductReview({ title, bulletPoints, specification
     
     // Primary Groq Model
     try {
-      console.log('Attempting Groq generation with llama-3.1-8b-instant...');
+      console.log('Attempting Groq generation with openai/gpt-oss-20b...');
       const response = await axios.post(groqEndpoint, {
-        model: "llama-3.1-8b-instant",
+        model: "openai/gpt-oss-20b",
         messages: [
           { role: "system", content: systemInstructions },
           { role: "user", content: "User Data:\n" + promptContent }
@@ -100,7 +100,7 @@ export async function generateProductReview({ title, bulletPoints, specification
       
       // Secondary Groq Model
       const response = await axios.post(groqEndpoint, {
-        model: "llama-3.3-70b-versatile",
+        model: "openai/gpt-oss-120b",
         messages: [
           { role: "system", content: systemInstructions },
           { role: "user", content: "User Data:\n" + promptContent }
