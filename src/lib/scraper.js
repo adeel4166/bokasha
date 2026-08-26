@@ -55,18 +55,19 @@ export function extractAsin(input) {
 }
 
 /**
- * Fetches product details using Amazon Creators API (Specifically for France for now)
+ * Fetches product details using Amazon Creators API
  */
 async function fetchFromCreatorsApi(asin, region) {
   console.log(`Using Amazon Creators API for ASIN: ${asin} (Region: ${region})`);
   
-  const credentialId = process.env.FR_AMAZON_CREDENTIAL_ID;
-  const credentialSecret = process.env.FR_AMAZON_CREDENTIAL_SECRET;
-  const version = process.env.FR_AMAZON_CREDENTIAL_VERSION || '3.2';
-  const partnerTag = process.env.FR_AMAZON_PARTNER_TAG;
+  const prefix = region.toUpperCase();
+  const credentialId = process.env[`${prefix}_AMAZON_CREDENTIAL_ID`];
+  const credentialSecret = process.env[`${prefix}_AMAZON_CREDENTIAL_SECRET`];
+  const version = process.env[`${prefix}_AMAZON_CREDENTIAL_VERSION`] || '3.2';
+  const partnerTag = process.env[`${prefix}_AMAZON_PARTNER_TAG`];
 
   if (!credentialId || !credentialSecret || credentialId === 'your_credential_id_here') {
-    throw new Error('FR_AMAZON_CREDENTIAL_ID or FR_AMAZON_CREDENTIAL_SECRET is not configured.');
+    throw new Error(`${prefix}_AMAZON_CREDENTIAL_ID or ${prefix}_AMAZON_CREDENTIAL_SECRET is not configured.`);
   }
 
   const apiClient = new ApiClient();
@@ -85,7 +86,15 @@ async function fetchFromCreatorsApi(asin, region) {
     'itemInfo.features'
   ];
 
-  const marketplace = 'www.amazon.fr';
+  const domains = {
+    FR: 'www.amazon.fr',
+    IT: 'www.amazon.it',
+    DE: 'www.amazon.de',
+    US: 'www.amazon.com',
+    UK: 'www.amazon.co.uk',
+    ES: 'www.amazon.es'
+  };
+  const marketplace = domains[prefix] || 'www.amazon.com';
 
   try {
     const response = await api.getItems(marketplace, getItemsRequest);
@@ -123,15 +132,17 @@ export async function scrapeAmazonProduct(inputUrl, region = 'US') {
   const url = getAmazonUrl(inputUrl, region);
   const asin = extractAsin(url) || 'UNKNOWN';
 
-  // --- NEW LOGIC: Try Creators API for FR first, fallback to scraper if it fails ---
-  if (region.toUpperCase() === 'FR') {
+  // --- NEW LOGIC: Try Creators API for supported regions first, fallback to scraper if it fails ---
+  const supportedApiRegions = ['FR', 'IT', 'DE'];
+  const prefix = region.toUpperCase();
+  if (supportedApiRegions.includes(prefix)) {
     try {
-      if (process.env.FR_AMAZON_CREDENTIAL_ID && process.env.FR_AMAZON_CREDENTIAL_ID !== 'your_credential_id_here') {
-        console.log('Using France Creators API for ASIN:', asin);
-        const apiData = await fetchFromCreatorsApi(asin, 'FR');
+      if (process.env[`${prefix}_AMAZON_CREDENTIAL_ID`] && process.env[`${prefix}_AMAZON_CREDENTIAL_ID`] !== 'your_credential_id_here') {
+        console.log(`Using ${prefix} Creators API for ASIN:`, asin);
+        const apiData = await fetchFromCreatorsApi(asin, prefix);
         return apiData; // Return immediately if API succeeds
       } else {
-        console.warn('France region selected but Creators API keys are missing. Falling back to scraper...');
+        console.warn(`${prefix} region selected but Creators API keys are missing. Falling back to scraper...`);
       }
     } catch (apiError) {
       console.warn(`Creators API Request Failed (${apiError.message || 'Unknown Error'}). Falling back to scraper...`);

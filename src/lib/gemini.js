@@ -55,8 +55,47 @@ export async function generateProductReview({ title, bulletPoints, specification
     ${specsText}
   `;
 
-  const attemptGeneration = async (retries = 2) => {
+  const attemptGroqGeneration = async () => {
+    const groqKey = process.env.GROQ_API_KEY;
+    if (!groqKey) {
+      throw new Error('GROQ_API_KEY is not configured in the environment variables for fallback.');
+    }
+
+    const groqEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
+    
+    const response = await axios.post(groqEndpoint, {
+      model: "llama3-70b-8192", // Using Llama 3 70B for best reasoning and JSON quality
+      messages: [
+        { role: "system", content: systemInstructions },
+        { role: "user", content: "User Data:\n" + promptContent }
+      ],
+      temperature: 0.7,
+      max_tokens: 4096,
+      response_format: { type: "json_object" }
+    }, {
+      headers: {
+        'Authorization': `Bearer ${groqKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const textContent = response.data?.choices?.[0]?.message?.content;
+    if (!textContent) {
+      throw new Error('Received empty response from Groq API.');
+    }
+
+    const parsedData = JSON.parse(textContent);
+    return {
+      title: parsedData.title || title,
+      category: parsedData.category || 'General',
+      badge: parsedData.badge || "Editor's Choice",
+      content: parsedData.content
+    };
+  };
+
+  const attemptGeneration = async (retries = 1) => {
     try {
+      console.log('Attempting content generation with Gemini...');
       const response = await axios.post(endpoint, {
         contents: [{
           parts: [{
@@ -83,8 +122,6 @@ export async function generateProductReview({ title, bulletPoints, specification
         throw new Error('Received empty response from Gemini API.');
       }
 
-      // Since responseMimeType is application/json, it should be pure JSON.
-      // Just in case it adds markdown, we strip it.
       let cleanText = textContent.trim();
       if (cleanText.startsWith('```json')) {
         cleanText = cleanText.replace(/^```json/, '').replace(/```$/, '').trim();
@@ -102,12 +139,15 @@ export async function generateProductReview({ title, bulletPoints, specification
       };
 
     } catch (error) {
-      if (retries > 0) {
-        console.warn(`Gemini generation failed, retrying... (${retries} retries left)`);
-        return await attemptGeneration(retries - 1);
+      console.warn(`Gemini generation failed: ${error.response?.data?.error?.message || error.message}`);
+      console.log('Switching to fallback API (Groq)...');
+      
+      try {
+        return await attemptGroqGeneration();
+      } catch (groqError) {
+        console.error('Groq fallback also failed:', groqError.response?.data || groqError.message);
+        throw new Error(`AI Content generation failed. Gemini Error: ${error.message} | Groq Error: ${groqError.message}`);
       }
-      console.error('Gemini content generation failed after retries:', error.response?.data || error.message);
-      throw new Error(`AI Content generation failed: ${error.message}`);
     }
   };
 
