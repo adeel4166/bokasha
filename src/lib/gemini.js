@@ -55,6 +55,8 @@ export async function generateProductReview({ title, bulletPoints, specification
     ${specsText}
   `;
 
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
   const attemptGroqGeneration = async () => {
     const groqKey = process.env.GROQ_API_KEY;
     if (!groqKey) {
@@ -64,7 +66,7 @@ export async function generateProductReview({ title, bulletPoints, specification
     const groqEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
     
     const response = await axios.post(groqEndpoint, {
-      model: "llama-3.1-8b-instant", // Downgraded to 8b-instant because 70b was returning 404 for the user's API key
+      model: "llama-4-scout-17b-16e-instruct", // Updated to the latest Llama 4 lightweight model
       messages: [
         { role: "system", content: systemInstructions },
         { role: "user", content: "User Data:\n" + promptContent }
@@ -93,62 +95,80 @@ export async function generateProductReview({ title, bulletPoints, specification
     };
   };
 
-  const attemptGeneration = async (retries = 1) => {
-    try {
-      console.log('Attempting content generation with Gemini...');
-      const response = await axios.post(endpoint, {
-        contents: [{
-          parts: [{
-            text: `${systemInstructions}\n\nUser Data:\n${promptContent}`
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
-          responseMimeType: "application/json"
-        }
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+  const attemptGeneration = async () => {
+    const maxRetries = 3;
+    let geminiError = null;
 
-      const candidate = response.data?.candidates?.[0];
-      const textContent = candidate?.content?.parts?.[0]?.text;
-
-      if (!textContent) {
-        throw new Error('Received empty response from Gemini API.');
-      }
-
-      let cleanText = textContent.trim();
-      if (cleanText.startsWith('```json')) {
-        cleanText = cleanText.replace(/^```json/, '').replace(/```$/, '').trim();
-      } else if (cleanText.startsWith('```')) {
-        cleanText = cleanText.replace(/^```/, '').replace(/```$/, '').trim();
-      }
-
-      const parsedData = JSON.parse(cleanText);
-
-      return {
-        title: parsedData.title || title,
-        category: parsedData.category || 'General',
-        badge: parsedData.badge || "Editor's Choice",
-        content: parsedData.content
-      };
-
-    } catch (error) {
-      console.warn(`Gemini generation failed: ${error.response?.data?.error?.message || error.message}`);
-      console.log('Switching to fallback API (Groq)...');
-      
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        return await attemptGroqGeneration();
-      } catch (groqError) {
-        const groqDetailedError = groqError.response?.data?.error?.message || groqError.message;
-        console.error('Groq fallback also failed:', groqError.response?.data || groqError.message);
-        throw new Error(`AI Content generation failed. Gemini Error: ${error.message} | Groq Error: ${groqDetailedError}`);
+        console.log(`Attempting content generation with Gemini (Attempt ${attempt}/${maxRetries})...`);
+        const response = await axios.post(endpoint, {
+          contents: [{
+            parts: [{
+              text: `${systemInstructions}\n\nUser Data:\n${promptContent}`
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 8192,
+            responseMimeType: "application/json"
+          }
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const candidate = response.data?.candidates?.[0];
+        const textContent = candidate?.content?.parts?.[0]?.text;
+
+        if (!textContent) {
+          throw new Error('Received empty response from Gemini API.');
+        }
+
+        let cleanText = textContent.trim();
+        if (cleanText.startsWith('```json')) {
+          cleanText = cleanText.replace(/^```json/, '').replace(/```$/, '').trim();
+        } else if (cleanText.startsWith('```')) {
+          cleanText = cleanText.replace(/^```/, '').replace(/```$/, '').trim();
+        }
+
+        const parsedData = JSON.parse(cleanText);
+
+        return {
+          title: parsedData.title || title,
+          category: parsedData.category || 'General',
+          badge: parsedData.badge || "Editor's Choice",
+          content: parsedData.content
+        };
+
+      } catch (error) {
+        geminiError = error;
+        const status = error.response?.status;
+        console.warn(`Gemini generation failed on attempt ${attempt}: ${error.response?.data?.error?.message || error.message}`);
+        
+        if (attempt < maxRetries) {
+          // Exponential backoff logic: 2000ms, 4000ms...
+          const waitTime = (status === 429) ? (2000 * attempt) : 2000;
+          console.log(`Status ${status || 'unknown'}. Waiting ${waitTime}ms before retrying...`);
+          await delay(waitTime);
+          continue;
+        }
+        
+        break; // Max retries reached
       }
+    }
+
+    console.log('Gemini exhausted all retries. Switching to fallback API (Groq)...');
+    
+    try {
+      return await attemptGroqGeneration();
+    } catch (groqError) {
+      const groqDetailedError = groqError.response?.data?.error?.message || groqError.message;
+      console.error('Groq fallback also failed:', groqError.response?.data || groqError.message);
+      throw new Error(`AI Content generation failed. Gemini Error: ${geminiError?.message} | Groq (llama-4-scout-17b-16e-instruct) Error: ${groqDetailedError}`);
     }
   };
 
