@@ -65,7 +65,7 @@ export async function generateProductReview({ title, bulletPoints, specification
 
     const groqEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
     
-    // Primary Groq Model
+    // Tier 2: Groq Fast Model
     try {
       console.log('Attempting Groq generation with openai/gpt-oss-20b...');
       const response = await axios.post(groqEndpoint, {
@@ -95,36 +95,68 @@ export async function generateProductReview({ title, bulletPoints, specification
         content: parsedData.content
       };
 
-    } catch (primaryError) {
-      console.warn(`Groq primary model failed: ${primaryError.response?.data?.error?.message || primaryError.message}. Switching to secondary Groq model...`);
+    } catch (tier2Error) {
+      console.warn(`[AI Fallback] Tier 2 rate limit hit, switching to Tier 3... (${tier2Error.response?.data?.error?.message || tier2Error.message})`);
       
-      // Secondary Groq Model
-      const response = await axios.post(groqEndpoint, {
-        model: "openai/gpt-oss-120b",
-        messages: [
-          { role: "system", content: systemInstructions },
-          { role: "user", content: "User Data:\n" + promptContent }
-        ],
-        temperature: 0.7,
-        max_tokens: 4096,
-        response_format: { type: "json_object" }
-      }, {
-        headers: {
-          'Authorization': `Bearer ${groqKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // Tier 3: Groq Heavy Model
+      try {
+        const response = await axios.post(groqEndpoint, {
+          model: "openai/gpt-oss-120b",
+          messages: [
+            { role: "system", content: systemInstructions },
+            { role: "user", content: "User Data:\n" + promptContent }
+          ],
+          temperature: 0.7,
+          max_tokens: 4096,
+          response_format: { type: "json_object" }
+        }, {
+          headers: {
+            'Authorization': `Bearer ${groqKey}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-      const textContent = response.data?.choices?.[0]?.message?.content;
-      if (!textContent) throw new Error('Received empty response from Groq API.');
+        const textContent = response.data?.choices?.[0]?.message?.content;
+        if (!textContent) throw new Error('Received empty response from Groq API.');
 
-      const parsedData = JSON.parse(textContent);
-      return {
-        title: parsedData.title || title,
-        category: parsedData.category || 'General',
-        badge: parsedData.badge || "Editor's Choice",
-        content: parsedData.content
-      };
+        const parsedData = JSON.parse(textContent);
+        return {
+          title: parsedData.title || title,
+          category: parsedData.category || 'General',
+          badge: parsedData.badge || "Editor's Choice",
+          content: parsedData.content
+        };
+      } catch (tier3Error) {
+        console.warn(`[AI Fallback] Tier 3 rate limit hit, switching to Tier 4... (${tier3Error.response?.data?.error?.message || tier3Error.message})`);
+        
+        // Tier 4: Groq Emergency Backup
+        const response = await axios.post(groqEndpoint, {
+          model: "qwen/qwen3.6-27b",
+          messages: [
+            { role: "system", content: systemInstructions },
+            { role: "user", content: "User Data:\n" + promptContent }
+          ],
+          temperature: 0.7,
+          max_tokens: 4096,
+          response_format: { type: "json_object" }
+        }, {
+          headers: {
+            'Authorization': `Bearer ${groqKey}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const textContent = response.data?.choices?.[0]?.message?.content;
+        if (!textContent) throw new Error('Received empty response from Groq API.');
+
+        const parsedData = JSON.parse(textContent);
+        return {
+          title: parsedData.title || title,
+          category: parsedData.category || 'General',
+          badge: parsedData.badge || "Editor's Choice",
+          content: parsedData.content
+        };
+      }
     }
   };
 
