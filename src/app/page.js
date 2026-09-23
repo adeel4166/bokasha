@@ -130,41 +130,41 @@ export default async function BlogHome({ searchParams }) {
 
           {/* PRODUCT GRID */}
           {allPosts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
               {allPosts.map((post) => (
-                <div key={post.slug} className="group relative flex flex-col bg-white dark:bg-[#0b0f19] border border-slate-100 dark:border-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl transition-all duration-300 hover:shadow-lg overflow-hidden">
+                <div key={post.slug} className="group relative flex flex-col bg-white dark:bg-[#0b0f19] border border-slate-200/60 dark:border-slate-800/60 hover:border-fuchsia-300 dark:hover:border-fuchsia-700/50 rounded-2xl transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] overflow-hidden">
                   
                   {/* Absolute Badges */}
-                  <div className="absolute top-2 left-2 z-10">
-                    <span className="bg-fuchsia-600 text-white text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded shadow-sm">
+                  <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5">
+                    <span className="bg-fuchsia-600/90 backdrop-blur-sm text-white text-[9px] sm:text-[10px] uppercase font-black tracking-wider px-2 py-1 rounded-md shadow-sm">
                       {post.region}
                     </span>
                   </div>
                   {post.badge && (
                     <div className="absolute top-2 right-2 z-10">
-                      <span className="bg-amber-400 text-amber-950 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded shadow-sm">
+                      <span className="bg-gradient-to-r from-amber-400 to-orange-400 text-amber-950 text-[9px] sm:text-[10px] uppercase font-black tracking-wider px-2 py-1 rounded-md shadow-sm">
                         {post.badge}
                       </span>
                     </div>
                   )}
 
-                  <Link href={`/post/${post.slug}`} className="w-full h-48 bg-white flex items-center justify-center p-4 transition transform group-hover:scale-105 duration-300">
+                  <Link href={`/post/${post.slug}`} className="w-full h-36 sm:h-48 bg-white flex items-center justify-center p-3 sm:p-4 transition transform group-hover:scale-105 duration-500">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.image_url} alt={post.title} className="w-full h-full object-contain filter drop-shadow-sm" />
+                    <img src={post.image_url} alt={post.title} className="w-full h-full object-contain filter drop-shadow-sm mix-blend-multiply" />
                   </Link>
 
-                  <div className="flex flex-col flex-1 justify-between w-full p-4 space-y-4">
+                  <div className="flex flex-col flex-1 justify-between w-full p-3 sm:p-4 space-y-3 sm:space-y-4 border-t border-slate-50 dark:border-slate-800/50 bg-slate-50/50 dark:bg-transparent">
                     <Link href={`/post/${post.slug}`}>
-                      <h3 className="text-[13px] md:text-sm font-bold text-slate-700 dark:text-slate-200 line-clamp-2 leading-snug group-hover:text-fuchsia-700 dark:group-hover:text-fuchsia-400 transition-colors">
+                      <h3 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 line-clamp-2 leading-relaxed group-hover:text-fuchsia-700 dark:group-hover:text-fuchsia-400 transition-colors">
                         {post.title}
                       </h3>
                     </Link>
 
                     <Link 
                       href={`/post/${post.slug}`}
-                      className="w-full bg-slate-50 hover:bg-slate-900 dark:bg-slate-800 dark:hover:bg-white text-slate-600 hover:text-white dark:text-slate-300 dark:hover:text-slate-900 font-bold text-xs py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 mt-auto"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-300 dark:hover:border-fuchsia-600 hover:bg-fuchsia-50 dark:hover:bg-fuchsia-900/20 text-slate-600 hover:text-fuchsia-700 dark:text-slate-300 dark:hover:text-fuchsia-400 font-bold text-[11px] sm:text-xs py-2 sm:py-2.5 px-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 mt-auto shadow-sm"
                     >
-                      View Product
+                      View Details <span className="opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-5px] group-hover:translate-x-0">&rarr;</span>
                     </Link>
                   </div>
                 </div>

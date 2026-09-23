@@ -136,12 +136,12 @@ export async function POST(req) {
       region: cleanRegion
     });
 
-    // Generate unique URL slug based on AI title
+    // Generate unique URL slug based on AI title (Shortened for better UX and SEO)
     let baseSlug = generatedReview.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
-      .substring(0, 80)
+      .substring(0, 40)
       .replace(/-+$/, '');
     
     // Fallback if title has non-latin characters only
