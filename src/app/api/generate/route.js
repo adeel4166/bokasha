@@ -5,6 +5,8 @@ import { generateProductReview } from '@/lib/gemini';
 import { revalidatePath } from 'next/cache';
 import jwt from 'jsonwebtoken';
 
+export const maxDuration = 60;
+
 const JWT_SECRET = process.env.JWT_SECRET || 'reviews-era-secret-key-12345';
 
 // Verify token and return user details

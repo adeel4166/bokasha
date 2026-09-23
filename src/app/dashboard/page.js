@@ -26,6 +26,17 @@ export default function WriterDashboard() {
     return () => clearInterval(timerRef.current);
   }, []);
 
+  useEffect(() => {
+    if (user && user.trackingIds) {
+      const matchedTag = user.trackingIds.find(t => t.region === region);
+      if (matchedTag) {
+        setTrackingId(matchedTag.tracking_id);
+      } else {
+        setTrackingId('');
+      }
+    }
+  }, [user, region]);
+
   const fetchSession = async () => {
     try {
       const res = await fetch('/api/auth');
@@ -34,12 +45,6 @@ export default function WriterDashboard() {
         router.push('/login');
       } else {
         setUser(data.user);
-        if (data.user.trackingIds) {
-          const defaultTag = data.user.trackingIds.find(t => t.region === 'US');
-          if (defaultTag) {
-            setTrackingId(defaultTag.tracking_id);
-          }
-        }
       }
     } catch (err) {
       router.push('/login');
@@ -54,14 +59,6 @@ export default function WriterDashboard() {
 
   const handleRegionChange = (newRegion) => {
     setRegion(newRegion);
-    if (user && user.trackingIds) {
-      const matchedTag = user.trackingIds.find(t => t.region === newRegion);
-      if (matchedTag) {
-        setTrackingId(matchedTag.tracking_id);
-      } else {
-        setTrackingId('');
-      }
-    }
   };
 
   const playSuccessSound = () => {
@@ -117,7 +114,15 @@ export default function WriterDashboard() {
         body: JSON.stringify({ asinOrUrl, region }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type');
+      let data;
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const textError = await res.text();
+        console.error('Non-JSON response:', textError);
+        throw new Error('Server timeout or invalid response. Please try again in a few moments.');
+      }
 
       if (!res.ok) {
         if (data.error === 'duplicate') {
