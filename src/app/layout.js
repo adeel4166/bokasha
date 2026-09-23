@@ -35,6 +35,9 @@ export const metadata = {
     icon: '/icon.png',
     apple: '/icon.png',
   },
+  other: {
+    'google-adsense-account': 'ca-pub-5139372623560864',
+  },
 };
 
 export default function RootLayout({ children }) {
