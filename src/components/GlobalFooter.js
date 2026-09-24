@@ -30,6 +30,7 @@ export default function GlobalFooter() {
           <ul className="space-y-3 text-xs text-slate-400">
             <li><Link href="/" className="hover:text-fuchsia-400 transition">All Products</Link></li>
             <li><Link href="/?latest=true" className="hover:text-fuchsia-400 transition">Latest Products</Link></li>
+            <li><Link href="/about" className="hover:text-fuchsia-400 transition">About Us</Link></li>
             <li><Link href="/dashboard" className="hover:text-fuchsia-400 transition">Writer Login</Link></li>
             <li><Link href="/contact" className="hover:text-fuchsia-400 transition">Contact Us</Link></li>
           </ul>
