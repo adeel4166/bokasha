@@ -52,6 +52,39 @@ export default function RootLayout({ children }) {
           strategy="afterInteractive"
         />
         <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'BOKASHA',
+              alternateName: 'Bokasha Reviews',
+              url: 'https://bokasha.com',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: {
+                  '@type': 'EntryPoint',
+                  urlTemplate: 'https://bokasha.com/?q={search_term_string}',
+                },
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'BOKASHA',
+              url: 'https://bokasha.com',
+              logo: 'https://bokasha.com/icon.png',
+              description: 'Unbiased and dynamic product review articles and comparisons from global Amazon marketplaces.',
+            }),
+          }}
+        />
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
